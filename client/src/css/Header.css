@@ -1,0 +1,11 @@
+.header-main {
+  font-size: 0.9rem;
+}
+.menu a,
+.dropdown {
+  padding: 0.5rem 1rem;
+}
+/* .menu a:hover {
+  background: rgb(243, 243, 243);
+  border-radius: 0.5rem;
+} */

@@ -1,0 +1,49 @@
+/* Footer Section */
+.footer {
+    background: linear-gradient(to right, #1e1e1e, #3a3a3a);
+    color: white;
+    padding: 40px 20px;
+}
+
+.footer h5 {
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.footer ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer ul li {
+    margin-bottom: 10px;
+}
+
+.footer ul li a {
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+}
+
+.footer ul li a:hover {
+    color: #fbb03b;
+}
+
+.footer .text-end a {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 1.5rem;
+    margin-right: 15px;
+    transition: color 0.3s ease;
+}
+
+.footer .text-end a:hover {
+    color: #fbb03b;
+}
+
+.footer p {
+    font-size: 0.9rem;
+    margin-top: 20px;
+    color: rgba(255, 255, 255, 0.5);
+}

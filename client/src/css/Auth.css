@@ -1,0 +1,45 @@
+.auth-main {
+  background: linear-gradient(to right, #0090bc56, #64d84f6f);
+  border-radius: 1rem;
+  font-size: 0.9rem;
+}
+
+.main-auth a {
+  color: #000000;
+}
+
+.button {
+  background-color: #000000;
+  padding: 0.8rem;
+  color: white;
+  transition: 0.3s;
+}
+
+.button:hover {
+  background-color: #292929;
+  color: white;
+}
+
+.form {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 1rem;
+}
+.form form {
+  margin-top: 2rem;
+}
+
+.portal {
+  display: flex;
+  gap: 1rem;
+}
+.portal p {
+  padding: 0.5rem 1rem;
+  width: 100%;
+  text-align: center;
+  border-radius: 0.3rem;
+  cursor: pointer;
+}
+.portal .active {
+  background-color: rgb(213, 244, 255);
+}
