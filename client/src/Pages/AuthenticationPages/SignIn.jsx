@@ -52,9 +52,9 @@ const SignIn = () => {
   return (
     <div className="m-5">
       <Toast status={toast.status} message={toast.message} />
-      <div className="mx-auto auth-main shadow-md bg-white p-8 sm:w-[80%] w-[100%] rounded-lg">
+      <div className="mx-auto auth-main shadow-md bg-white p-8 lg:w-[80%] w-[100%] rounded-lg">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="hidden sm:block">
+          <div className="hidden md:block m-auto">
             <img src={signin} alt="Sign In" className="w-full" />
           </div>
           <div>
@@ -113,6 +113,14 @@ const SignIn = () => {
                   >
                     Buyer
                   </p>
+                  <p
+                    className={`cursor-pointer px-4 py-2 rounded-lg ${
+                      portal === "admin" ? "active" : ""
+                    }`}
+                    onClick={() => setPortal("admin")}
+                  >
+                    Admin
+                  </p>
                 </div>
               </div>
               <button
@@ -148,7 +156,7 @@ const SignIn = () => {
               </button>
               <p className="text-gray-600 mt-4">
                 Having trouble logging in?{" "}
-                <Link to="/" className="underline">
+                <Link to="/reset-password" className="underline">
                   Reset password
                 </Link>
               </p>

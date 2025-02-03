@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
+const secret = "Skill$123@$Flow";
 
 export const generateToken = (user, res) => {
-  const secret = "Skill$123@$Flow";
   const token = jwt.sign(
     {
       name: user.name,
@@ -22,7 +22,7 @@ export const verifyToken = (req, res) => {
   const token = req.header("token");
 
   if (token) {
-    jwt.verify(token, "Skill$123@$Flow", (err, decoded) => {
+    jwt.verify(token, secret, (err, decoded) => {
       if (err) {
         return res
           .status(200)

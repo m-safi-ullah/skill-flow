@@ -4,7 +4,7 @@ import "../css/Home.css";
 const Home = () => {
   return (
     <main>
-      <section className="container p-4">
+      <section className="container p-4 mx-auto w-100">
         <div className="home-main mx-auto rounded-lg text-center py-12 px-4">
           <h1 className="md:text-4xl text-2xl font-semibold">
             Scale your professional workforce with freelancers
@@ -14,13 +14,13 @@ const Home = () => {
             globally.
           </p>
           <div className="flex justify-center mt-6">
-            <div className="relative w-3/4 max-w-lg">
+            <div className="w-3/4 max-w-lg flex">
               <input
                 type="text"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:ring focus:ring-green-300"
+                className="w-full border border-gray-300 rounded-lg rounded-e-none px-4 py-3 text-gray-700 focus:outline-none focus:ring focus:ring-green-300"
                 placeholder="Search for any service"
               />
-              <button className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-green-500 text-white px-4 py-2 pt-3 rounded-r-lg">
+              <button className=" bg-green-700 text-white px-4 py-2 pt-3 rounded-r-lg">
                 <span className="material-symbols-outlined">search</span>
               </button>
             </div>
@@ -106,7 +106,7 @@ const Home = () => {
         </a>
       </section>
 
-      <section className="py-12 mt-12 bg-gray-50">
+      <section className="py-16 mt-12 bg-gray-50">
         <div className="container mx-auto text-center px-4">
           <h2 className="text-2xl font-bold text-secondry">
             What Our Customers Say

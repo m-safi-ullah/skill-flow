@@ -7,6 +7,7 @@ const AuthSchema = new mongoose.Schema({
   role: String,
   cnic: String,
   cnicImage: String,
+  verificationCode: String,
 });
 
 const AuthModel = mongoose.model("users", AuthSchema);

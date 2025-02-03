@@ -5,6 +5,7 @@ import {
   register,
   verifyOtp,
   sellerRegister,
+  verifyEmail,
 } from "../Controllers/auth.js";
 
 import { verifyToken } from "../Controllers/generateToken.js";
@@ -13,7 +14,7 @@ const router = express.Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/");
+    cb(null, "uploads/cnic");
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
@@ -59,7 +60,8 @@ router.post(
   sellerRegister,
   multerErrorHandler
 );
-router.post("/verifyOtp", verifyOtp);
+router.post("/verify-otp", verifyOtp);
 router.post("/verify-token", verifyToken);
+router.post("/verify-email", verifyEmail);
 
 export default router;

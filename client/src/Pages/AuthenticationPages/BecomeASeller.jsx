@@ -61,7 +61,7 @@ const BecomeASeller = () => {
       const email = formData.get("email");
       setEmail(email);
       formData.append("attachCnic", attachedCnic);
-      api
+      axios
         .post("/auth/seller-register", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         })
@@ -92,7 +92,7 @@ const BecomeASeller = () => {
     e.preventDefault();
     const formData = new FormData(e.target);
     formData.append("email", email);
-    axios.post("/auth/verifyOtp", formData).then((response) => {
+    axios.post("/auth/verify-otp", formData).then((response) => {
       if (response.data.success) {
         window.location.href = "/dashboard";
       } else {
@@ -107,12 +107,12 @@ const BecomeASeller = () => {
   return (
     <div className="m-5">
       <Toast status={toast.status} message={toast.message} />
-      <div className="container mx-auto auth-main shadow-lg p-8 sm:w-[80%] w-[100%]">
+      <div className="container mx-auto auth-main shadow-lg p-8 lg:w-[80%] w-[100%]">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="hidden sm:block">
+          <div className="hidden md:block m-auto">
             <img src={signin} alt="Sign in" className="w-full h-auto" />
           </div>
-          <div>
+          <div className="my-auto">
             {formVisibility && (
               <form onSubmit={handleSubmit} className="form">
                 <h2 className="text-2xl font-semibold  mb-2">
@@ -215,8 +215,8 @@ const BecomeASeller = () => {
               </form>
             )}
             {!formVisibility && (
-              <form onSubmit={verifyOTP}>
-                <h2 className="text-2xl font-semibold  mb-2">
+              <form onSubmit={verifyOTP} className="form">
+                <h2 className="text-2xl font-semibold mb-2">
                   Verify your account
                 </h2>
                 <label className="block mb-2 font-medium">Enter OTP</label>

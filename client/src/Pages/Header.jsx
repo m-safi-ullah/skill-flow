@@ -1,9 +1,9 @@
 import React, { useContext, useState } from "react";
 import logo from "../images/logoDark.png";
-import { Link } from "react-router-dom";
 import "../css/Header.css";
 import { GlobalContext } from "./context/context.jsx";
 import { useCookies } from "react-cookie";
+import { Link } from "react-router-dom";
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -13,6 +13,7 @@ function Header() {
   const handleLogout = () => {
     removeCookie("token", "");
     setAuthName("");
+    window.location.href = "/";
   };
   return (
     <header>
@@ -25,7 +26,7 @@ function Header() {
           </div>
 
           <button
-            className="block md:hidden text-gray-600 hover:text-gray-800 focus:outline-none"
+            className="block lg:hidden text-gray-600 hover:text-gray-800 focus:outline-none"
             aria-label={
               menuOpen ? "Close navigation menu" : "Open navigation menu"
             }
@@ -50,9 +51,9 @@ function Header() {
           <div
             className={`${
               menuOpen ? "block" : "hidden"
-            } fixed inset-0 bg-white md:bg-transparent md:relative md:flex md:items-center md:space-x-4 transition-all duration-300 z-50 pt-10 sm:pt-0`}
+            } fixed inset-0 z-40 bg-white lg:bg-transparent lg:relative lg:flex lg:items-center lg:space-x-4  transition-all duration-300 pt-10 lg:pt-0`}
           >
-            <div className="flex menu flex-col md:flex-row space-y-4 md:space-y-0 items-center">
+            <div className="flex menu flex-col lg:flex-row space-y-4 lg:space-y-0 items-center">
               <Link
                 to="#"
                 className="text-gray-600 hover:text-gray-800 font-medium"
@@ -83,26 +84,9 @@ function Header() {
               </Link>
 
               {cookies.token ? (
-                <div className="relative group dropdown">
-                  <button className="text-gray-600 hover:text-gray-800 font-medium flex items-center">
-                    Hi, {authName.split(" ")[0]}{" "}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 ml-2 transition-transform rotate-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M6 9l6 6 6-6"
-                      />
-                    </svg>
-                  </button>
-
-                  <div className="absolute right-0 hidden group-hover:block bg-white shadow-lg rounded-md z-10 w-48">
+                <div className="relative group dropdown cursor-pointer">
+                  Hi, {authName.split(" ")[0]}
+                  <div className="absolute md:right-0 hidden group-hover:block bg-white shadow-lg rounded-md z-10 w-48">
                     <ul className="py-2">
                       <li onClick={() => setMenuOpen(false)}>
                         <Link
@@ -152,7 +136,7 @@ function Header() {
             </div>
 
             <button
-              className="absolute top-4 right-4 text-gray-600 md:hidden focus:outline-none"
+              className="absolute top-4 right-4 text-gray-600 lg:hidden focus:outline-none"
               onClick={() => setMenuOpen(false)}
               aria-label="Close menu"
             >

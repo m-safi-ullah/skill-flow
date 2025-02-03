@@ -1,6 +1,6 @@
 import AuthModel from "../models/authDB.js";
 import TempUser from "../models/tempUser.js";
-import { sendVerificationCode } from "../mail/email.js";
+import { sendVerificationCode, sendVerifyEmail } from "../mail/email.js";
 import bcrypt from "bcrypt";
 import { generateToken } from "./generateToken.js";
 
@@ -169,10 +169,14 @@ export const sellerRegister = async (req, res) => {
 
   try {
     const normalizedEmail = email.trim().toLowerCase();
-
     const existingUser = await AuthModel.findOne({
-      email: normalizedEmail,
-      role,
+      $and: [
+        { email: normalizedEmail },
+        { role: role },
+        {
+          $or: [{ cnic }, { email: normalizedEmail, role: role }],
+        },
+      ],
     });
     if (existingUser) {
       return res.status(200).json({
@@ -207,7 +211,7 @@ export const sellerRegister = async (req, res) => {
 
       return res.status(200).json({
         success: true,
-        message: "OTP sent successfully. User updated.",
+        message: "OTP sent successfully.",
       });
     }
 
@@ -233,6 +237,30 @@ export const sellerRegister = async (req, res) => {
       success: false,
       message: "Registration failed",
       error: error.message,
+    });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  const { email } = req.body;
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const user = await AuthModel.findOne({ email: normalizedEmail });
+  if (!user) {
+    return res.status(200).json({
+      success: false,
+      message: "Invalid email",
+    });
+  } else {
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+
+    sendVerifyEmail(normalizedEmail, verificationCode);
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent successfully.",
     });
   }
 };

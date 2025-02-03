@@ -1,27 +1,33 @@
-import { useContext, useEffect } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import Loader from "../loader/loader.jsx";
+import useAxios from "../../baseURL/axios";
+import { GlobalContext } from "../context/context.jsx";
 import { useCookies } from "react-cookie";
 import { jwtDecode } from "jwt-decode";
-import { GlobalContext } from "../context/context.jsx";
 
-const useAuth = () => {
+const Auth = () => {
+  const axios = useAxios();
+  const [loader, setLoader] = useState(false);
+  const [cookie, removeCookie] = useCookies("token");
   const { setAuthEmail, setAuthRole, setAuthName } = useContext(GlobalContext);
-  const [cookies] = useCookies(["token"]);
-  const transformedCookies = cookies.token;
 
   useEffect(() => {
-    if (transformedCookies) {
-      try {
-        const decoded = jwtDecode(transformedCookies);
-        setAuthName(decoded.name);
-        setAuthEmail(decoded.email);
-        setAuthRole(decoded.role);
-      } catch (error) {
-        console.error("Token decoding failed:", error);
-      }
+    if (cookie.token) {
+      axios.post("/auth/verify-token").then((response) => {
+        if (response.data.isValid) {
+          const decoded = jwtDecode(cookie.token);
+          setAuthName(decoded.name);
+          setAuthEmail(decoded.email);
+          setAuthRole(decoded.role);
+          setLoader(false);
+        } else {
+          removeCookie("token", "");
+          window.location.href = "/";
+        }
+      });
     }
-  }, [transformedCookies, setAuthEmail, setAuthRole]);
-
-  return;
+  }, [cookie.token]);
+  return <div>{loader && <Loader display={loader} />}</div>;
 };
 
-export default useAuth;
+export default Auth;

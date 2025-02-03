@@ -35,21 +35,21 @@ export const sendVerificationCode = async (email, verificationCode) => {
   }
 };
 
-// export const sendVerificationCode1 = async (email, forgetPasswordCode) => {
-//   try {
-//     const response = await transporter.sendMail({
-//       from: '"Skill Flow" <your-email@gmail.com>',
-//       to: email,
-//       subject: "Reset Your Password",
-//       text: `Your password reset OTP is: ${forgetPasswordCode}.`,
-//       html: `
-//         <p>
-//           Your password reset OTP is: <strong>${forgetPasswordCode}</strong>
-//         </p>
-//       `,
-//     });
-//     console.log("Password reset email sent:", response);
-//   } catch (error) {
-//     console.error("Error sending password reset email:", error);
-//   }
-// };
+export const sendVerifyEmail = async (email, verificationCode) => {
+  try {
+    const response = await transporter.sendMail({
+      from: '"Skill Flow" <astragalaxyllc@gmail.com>',
+      to: email,
+      subject: "Reset Your Password",
+      text: `Your OTP is: ${verificationCode}.`,
+      html: `
+        <p>
+          Your OTP is: <strong>${verificationCode}</strong>
+        </p>
+      `,
+    });
+    console.log("Password reset email sent:", response);
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+  }
+};
