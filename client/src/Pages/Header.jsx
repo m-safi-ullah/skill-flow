@@ -85,7 +85,24 @@ function Header() {
 
               {cookies.token ? (
                 <div className="relative group dropdown cursor-pointer">
-                  Hi, {authName.split(" ")[0]}
+                  <div className="flex">
+                    Hi, {authName?.split(" ")[0]}{" "}
+                    <svg
+                      className="h-5 w-5 text-gray-500"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      {" "}
+                      <path stroke="none" d="M0 0h24v24H0z" />{" "}
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </div>
                   <div className="absolute md:right-0 hidden group-hover:block bg-white shadow-lg rounded-md z-10 w-48">
                     <ul className="py-2">
                       <li onClick={() => setMenuOpen(false)}>

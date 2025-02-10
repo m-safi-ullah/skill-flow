@@ -22,7 +22,7 @@ const Auth = () => {
           setLoader(false);
         } else {
           removeCookie("token", "");
-          window.location.href = "/";
+          window.location.reload();
         }
       });
     }

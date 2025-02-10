@@ -6,6 +6,9 @@ import {
   verifyOtp,
   sellerRegister,
   verifyEmail,
+  adminRegister,
+  setNewPasswod,
+  updatePassword,
 } from "../Controllers/auth.js";
 
 import { verifyToken } from "../Controllers/generateToken.js";
@@ -23,7 +26,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 500 * 1024 },
+  limits: { fileSize: 1000 * 2048 },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
       return cb(new Error("Only image files are allowed!"), false);
@@ -32,36 +35,13 @@ const upload = multer({
   },
 });
 
-const multerErrorHandler = (err, req, res, next) => {
-  if (err instanceof multer.MulterError) {
-    if (err.code === "LIMIT_FILE_SIZE") {
-      return res.status(400).json({ error: "File size exceeds 500KB limit!" });
-    }
-  } else if (err) {
-    return res.status(400).json({ error: err.message });
-  }
-  next();
-};
-
 router.post("/signIn", signIn);
 router.post("/register", register);
-router.post(
-  "/seller-register",
-  upload.single("attachCnic"),
-  (req, res, next) => {
-    if (!req.file) {
-      return res.status(400).json({ error: "File is required!" });
-    }
-    if (req.file.size > 500 * 1024) {
-      return res.status(400).json({ error: "File size exceeds 500KB limit!" });
-    }
-    next();
-  },
-  sellerRegister,
-  multerErrorHandler
-);
+router.post("/admin-register", upload.single("attachCnic"), adminRegister);
+router.post("/seller-register", upload.single("attachCnic"), sellerRegister);
 router.post("/verify-otp", verifyOtp);
 router.post("/verify-token", verifyToken);
 router.post("/verify-email", verifyEmail);
-
+router.post("/reset-password", setNewPasswod);
+router.post("/update-password", updatePassword);
 export default router;

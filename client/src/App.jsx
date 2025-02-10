@@ -10,6 +10,8 @@ import Dashboard from "./Pages/Dashboard/Dashboard";
 import Auth from "./Pages/auth/Auth";
 import ResetPassword from "./Pages/AuthenticationPages/ResetPassword";
 import Loader from "./Pages/loader/loader";
+import SellerProfile from "./Pages/Profile/SellerProfile";
+import BuyerProfile from "./Pages/Profile/BuyerProfile";
 
 export default function App() {
   return (
@@ -24,6 +26,8 @@ export default function App() {
         <Route path="/become-a-seller" element={<BecomeASeller />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/seller" element={<SellerProfile />} />
+        <Route path="/buyer" element={<BuyerProfile />} />
       </Routes>
       <Footer />
     </Router>

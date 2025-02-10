@@ -2,7 +2,7 @@ import { transporter } from "./config.js";
 
 export const sendVerificationCode = async (email, verificationCode) => {
   try {
-    const response = await transporter.sendMail({
+    await transporter.sendMail({
       from: '"Skill Flow" <astragalaxyllc@gmail.com>',
       to: email,
       subject: "Confirm Your Email Address",
@@ -29,7 +29,6 @@ export const sendVerificationCode = async (email, verificationCode) => {
         </div>
       `,
     });
-    console.log("Verification email sent:", response);
   } catch (error) {
     console.error("Error sending verification email:", error);
   }
@@ -38,18 +37,25 @@ export const sendVerificationCode = async (email, verificationCode) => {
 export const sendVerifyEmail = async (email, verificationCode) => {
   try {
     const response = await transporter.sendMail({
-      from: '"Skill Flow" <astragalaxyllc@gmail.com>',
+      from: '"Skill Flow Support" <astragalaxyllc@gmail.com>',
       to: email,
-      subject: "Reset Your Password",
-      text: `Your OTP is: ${verificationCode}.`,
+      subject: "Your One-Time Password (OTP) for Account Verification",
+      text: `Dear User,\n\nYou have requested an OTP for account verification.\n\nYour OTP code is: ${verificationCode}\n\nIf you did not request this, please ignore this email.\n\nBest Regards,\nSkill Flow Support Team`,
       html: `
-        <p>
-          Your OTP is: <strong>${verificationCode}</strong>
-        </p>
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+          <p>Dear User,</p>
+          <p>You have requested a One-Time Password (OTP) for account verification.</p>
+          <p style="font-size: 18px; font-weight: bold; color: #007bff;">
+            Your OTP code: <span style="background: #f4f4f4; padding: 5px 10px; border-radius: 5px;">${verificationCode}</span>
+          </p>
+          <p>If you did not request this, please ignore this email.</p>
+          <p>Best Regards,<br><strong>Skill Flow Support Team</strong></p>
+        </div>
       `,
     });
-    console.log("Password reset email sent:", response);
+    return response;
   } catch (error) {
-    console.error("Error sending password reset email:", error);
+    console.error("Error sending OTP email:", error);
+    throw new Error("Failed to send OTP email. Please try again.");
   }
 };

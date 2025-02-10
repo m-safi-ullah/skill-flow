@@ -13,6 +13,7 @@ const BecomeASeller = () => {
   const [formVisibility, setFormVisibility] = useState(true);
   const [cnic, setCnic] = useState("");
   const [email, setEmail] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [cookies] = useCookies(["token"]);
 
   useEffect(() => {
@@ -23,7 +24,6 @@ const BecomeASeller = () => {
 
   const handleChange = (e) => {
     let value = e.target.value;
-
     value = value.replace(/[^0-9]/g, "");
 
     if (value.length > 5 && value.length <= 12) {
@@ -41,54 +41,82 @@ const BecomeASeller = () => {
     setAttachedCnic(e.target.files[0]);
   };
 
+  // Password validation function
+  const validatePassword = (password, confirmPassword) => {
+    if (password !== confirmPassword) {
+      return "Password and confirm password must match";
+    }
+
+    if (password.length < 8) {
+      return "Password must be at least 8 characters long.";
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      return "Password must include at least one uppercase letter.";
+    }
+
+    if (!/[a-z]/.test(password)) {
+      return "Password must include at least one lowercase letter.";
+    }
+
+    if (!/\d/.test(password)) {
+      return "Password must include at least one number.";
+    }
+
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      return "Password must include at least one special character.";
+    }
+
+    return "";
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
 
     setToast({ status: "", message: "" });
+    console.log(toast);
 
     const password = formData.get("password");
     const confirmPassword = formData.get("confirmPassword");
 
-    if (password !== confirmPassword) {
-      setToast({
-        status: "error",
-        message: "Password and confirm password must match",
-      });
-    } else {
-      setBtnLoader(true);
-      formData.delete("confirmPassword");
-      const email = formData.get("email");
-      setEmail(email);
-      formData.append("attachCnic", attachedCnic);
-      axios
-        .post("/auth/seller-register", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then((response) => {
-          if (response.data.success) {
-            setFormVisibility(false);
-            setToast({
-              status: "success",
-              message: "OTP sent to your email",
-            });
-            setBtnLoader(false);
-          } else {
-            setBtnLoader(false);
-            setToast({
-              status: "error",
-              message: response.data.message,
-            });
-          }
-        });
+    const validationError = validatePassword(password, confirmPassword);
+
+    if (validationError) {
+      setPasswordError(validationError);
+      return;
     }
+    setPasswordError("");
+    setBtnLoader(true);
+    formData.delete("confirmPassword");
+    const email = formData.get("email");
+    setEmail(email);
+    formData.append("attachCnic", attachedCnic);
+
+    axios
+      .post("/auth/seller-register", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((response) => {
+        if (response.data.success) {
+          setFormVisibility(false);
+          setToast({
+            status: "success",
+            message: "OTP sent to your email",
+          });
+          setBtnLoader(false);
+        } else {
+          setBtnLoader(false);
+          setToast({
+            status: "error",
+            message: response.data.message,
+          });
+        }
+      });
   };
 
   const verifyOTP = (e) => {
-    setToast({
-      status: "",
-      message: "",
-    });
+    setToast({ status: "", message: "" });
     e.preventDefault();
     const formData = new FormData(e.target);
     formData.append("email", email);
@@ -124,6 +152,7 @@ const BecomeASeller = () => {
                     Sign in
                   </Link>
                 </p>
+
                 <label className="block mb-2 font-medium">Full Name</label>
                 <input
                   type="text"
@@ -132,6 +161,7 @@ const BecomeASeller = () => {
                   className="w-full p-2 border focus:outline-none border-gray-300 rounded mb-4"
                   required
                 />
+
                 <label className="block mb-2 font-medium">Email</label>
                 <input
                   type="email"
@@ -140,6 +170,7 @@ const BecomeASeller = () => {
                   className="w-full p-2 border focus:outline-none border-gray-300 rounded mb-4"
                   required
                 />
+
                 <label className="block mb-2 font-medium">CNIC</label>
                 <input
                   type="text"
@@ -173,6 +204,12 @@ const BecomeASeller = () => {
                   required
                 />
 
+                {passwordError && (
+                  <div className="text-red-500 text-sm mb-4">
+                    {passwordError}
+                  </div>
+                )}
+
                 <label className="block mb-2 font-medium">Upload CNIC</label>
                 <input
                   className="w-full p-2 border border-gray-300 rounded mb-4"
@@ -184,36 +221,13 @@ const BecomeASeller = () => {
                 <button
                   type="submit"
                   className="w-full button text-white font-medium py-2 rounded-lg focus:outline-none"
+                  disabled={btnLoader}
                 >
-                  {!btnLoader ? (
-                    "Become A Seller"
-                  ) : (
-                    <div className="flex justify-center items-center">
-                      <svg
-                        className="animate-spin h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8v8H4z"
-                        ></path>
-                      </svg>
-                    </div>
-                  )}
+                  {!btnLoader ? "Become A Seller" : "Processing..."}
                 </button>
               </form>
             )}
+
             {!formVisibility && (
               <form onSubmit={verifyOTP} className="form">
                 <h2 className="text-2xl font-semibold mb-2">
@@ -227,37 +241,11 @@ const BecomeASeller = () => {
                   className="w-full p-2 border focus:outline-none border-gray-300 rounded mb-4"
                   required
                 />
-
                 <button
                   type="submit"
-                  className="w-full button text-white font-medium py-2 rounded-lg focus:outline-none"
+                  className="w-full button text-white font-medium py-2 rounded-lg"
                 >
-                  {!btnLoader ? (
-                    "Verify OTP"
-                  ) : (
-                    <div className="flex justify-center items-center">
-                      <svg
-                        className="animate-spin h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8v8H4z"
-                        ></path>
-                      </svg>
-                    </div>
-                  )}
+                  Verify OTP
                 </button>
               </form>
             )}
