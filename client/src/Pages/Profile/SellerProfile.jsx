@@ -1,7 +1,8 @@
 import React from "react";
+import Profile from "./Profile";
 
 const SellerProfile = () => {
-  return <div></div>;
+  return <Profile portal="sellers" />;
 };
 
 export default SellerProfile;

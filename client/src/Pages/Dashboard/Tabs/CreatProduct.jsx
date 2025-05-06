@@ -1,98 +1,155 @@
-import React, { useContext, useState } from "react";
+import React, { useEffect, useState } from "react";
 import CreatableSelect from "react-select/creatable";
-import useAxios from "../../../baseURL/axios";
+import axios from "../../../baseURL/axios";
 import Toast from "../../../Symbols/Toast";
 import Loading from "../../../Symbols/Loading";
-import { GlobalContext } from "../../context/context";
+import { FaTrash } from "react-icons/fa";
+import { SkillsArray } from "../../../Symbols/SkillsArray";
 
 const CreateProduct = () => {
   const [tags, setTags] = useState([]);
   const [toast, setToast] = useState({ status: "", message: "" });
   const [loading, setLoading] = useState(false);
-  const axios = useAxios();
+  const [FormButton, setFormButton] = useState("Submit");
+  const [formErrors, setFormErrors] = useState({ price: "", tags: "" });
+  const [deletedServerImages, setDeletedServerImages] = useState([]);
 
-  const [options] = useState([
-    { value: "furniture", label: "Furniture" },
-    { value: "electronics", label: "Electronics" },
-  ]);
-  const [images, setImages] = useState({
-    image1: { file: null, preview: "" },
-    image2: { file: null, preview: "" },
-    image3: { file: null, preview: "" },
-    image4: { file: null, preview: "" },
-  });
-  const { authEmail, authRole } = useContext(GlobalContext);
+  const [images, setImages] = useState(
+    Array(4).fill({ file: null, preview: "" })
+  );
 
-  const handleImageChange = (e, imageKey) => {
+  const [initialData, setInitialData] = useState(null);
+
+  const tagsOption = SkillsArray;
+
+  useEffect(() => {
+    if (location.search.includes("&")) {
+      const id = location.search?.split("&")[1].split("=")[1];
+      const fetchProduct = async () => {
+        setFormButton("Update");
+        try {
+          const response = await axios.get("/dashboard/getProductById", {
+            params: { id },
+          });
+          if (response.data.success) {
+            const { product } = response.data;
+            setInitialData(product);
+            setTags(JSON.parse(product?.tags) || []);
+            const productImages = Array(4).fill({ file: null, preview: "" });
+            product.image?.forEach((img, idx) => {
+              if (idx < 4) {
+                productImages[idx] = { file: null, preview: img };
+              }
+            });
+            setImages(productImages);
+          }
+        } catch (error) {
+          setToast({
+            status: "error",
+            message: "Failed to fetch product details",
+          });
+        }
+      };
+      fetchProduct();
+    }
+  }, [location]);
+
+  const handleImageChange = (e, index) => {
     const file = e.target.files[0];
     if (file) {
-      const preview = URL.createObjectURL(file);
-      setImages((prev) => ({
-        ...prev,
-        [imageKey]: { file, preview },
-      }));
+      const updatedImages = [...images];
+
+      const oldImage = updatedImages[index];
+      if (
+        oldImage.preview &&
+        oldImage.preview.includes("uploads") &&
+        !oldImage.file
+      ) {
+        setDeletedServerImages((prev) => [...prev, oldImage.preview]);
+      }
+
+      updatedImages[index] = {
+        file,
+        preview: URL.createObjectURL(file),
+      };
+
+      setImages(updatedImages);
     }
+    e.target.value = "";
+  };
+
+  const handleDeleteImg = (index, e) => {
+    e.stopPropagation();
+    const updatedImages = [...images];
+
+    const deletedImage = updatedImages[index];
+    if (
+      deletedImage.preview &&
+      deletedImage.preview.includes("uploads") &&
+      !deletedImage.file
+    ) {
+      setDeletedServerImages((prev) => [...prev, deletedImage.preview]);
+    }
+
+    updatedImages[index] = { file: null, preview: "" };
+    setImages(updatedImages);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setToast({ status: "", message: "" });
+    setFormErrors({ price: "", tags: "" });
 
-    // Form validation
-    const title = e.target.title.value.trim();
-    const price = parseFloat(e.target.price.value);
-    const description = e.target.description.value.trim();
-
-    if (price <= 0) {
-      setToast({ status: "error", message: "Price must be greater than 0." });
-      setLoading(false);
-      return;
-    }
+    let hasError = false;
 
     if (tags.length === 0) {
-      setToast({ status: "error", message: "Please add at least one tag." });
+      setFormErrors((prev) => ({
+        ...prev,
+        tags: "Please add at least one tag.",
+      }));
+      hasError = true;
+    }
+
+    if (hasError) {
       setLoading(false);
       return;
     }
 
-    // Prepare form data
-    const formData = new FormData();
-    formData.append("email", authEmail);
-    formData.append("role", authRole);
-    formData.append("title", title);
-    formData.append("price", price);
-    formData.append("description", description);
+    const formData = new FormData(e.target);
     formData.append("tags", JSON.stringify(tags));
 
-    // Append images if they exist
-    Object.values(images).forEach((image, index) => {
-      if (image.file) {
-        formData.append(`image${index + 1}`, image.file);
+    images.forEach((imageObj) => {
+      if (imageObj.file) {
+        formData.append("images[]", imageObj.file);
       }
     });
 
+    if (FormButton === "Update") {
+      var id = location?.search?.split("&")[1].split("=")[1];
+      formData.append("deletedImages", JSON.stringify(deletedServerImages));
+    }
+
     try {
-      const response = await axios.post("/dashboard/create-product", formData, {
+      const url =
+        FormButton === "Submit"
+          ? "/dashboard/createProduct"
+          : `/dashboard/updateProduct/${id}`;
+      const method = FormButton === "Submit" ? "post" : "patch";
+
+      const response = await axios[method](url, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+      setToast({
+        status: response.data.success ? "success" : "error",
+        message: response.data.message,
+      });
+
       if (response.data.success) {
-        setToast({ status: "success", message: "Item created successfully!" });
-        // Reset form after successful submission
-        e.target.reset();
-        setTags([]);
-        setImages({
-          image1: { file: null, preview: "" },
-          image2: { file: null, preview: "" },
-          image3: { file: null, preview: "" },
-          image4: { file: null, preview: "" },
-        });
-      } else {
-        setToast({ status: "error", message: response.data.message });
+        window.location.href = "/dashboard?tab=product-list";
       }
     } catch (error) {
-      console.error("Error submitting item:", error);
       setToast({
         status: "error",
         message:
@@ -108,7 +165,7 @@ const CreateProduct = () => {
     <div className="p-5">
       <Loading visible={loading} />
       <Toast status={toast.status} message={toast.message} />
-      <form onSubmit={handleSubmit} className="">
+      <form onSubmit={handleSubmit} id="form">
         <h3 className="text-xl font-medium mb-4">Product Information</h3>
 
         {/* Images Section */}
@@ -116,22 +173,33 @@ const CreateProduct = () => {
           <label className="block text-gray-700 font-medium mb-2">
             Product Images
           </label>
-          <div className="flex gap-4 flex-wrap">
-            {[1, 2, 3, 4].map((num) => (
-              <div key={num} className="w-48">
+          <div className="flex gap-2 flex-wrap">
+            {images.map((image, idx) => (
+              <div key={idx} className="w-56">
                 <div
-                  className="p-2 border border-gray-300 rounded-lg cursor-pointer flex justify-center items-center w-full h-32 bg-gray-100 relative"
+                  className="border border-gray-300 rounded-lg cursor-pointer flex justify-center items-center w-full h-36 bg-gray-100 relative"
                   onClick={() =>
-                    document.getElementById(`fileInput${num}`).click()
+                    document.getElementById(`fileInput${idx + 1}`).click()
                   }
                 >
-                  {images[`image${num}`]?.preview ? (
-                    <img
-                      src={images[`image${num}`].preview}
-                      alt={`Preview ${num}`}
-                      className="w-full h-full"
-                      style={{ borderRadius: "0.3rem", objectFit: "cover" }}
-                    />
+                  {image.preview ? (
+                    <>
+                      <img
+                        src={
+                          image.preview?.includes("uploads")
+                            ? `http://localhost:4400/${image.preview}`
+                            : image.preview
+                        }
+                        alt={`Preview ${idx + 1}`}
+                        className="w-full h-full object-cover rounded-md"
+                      />
+                      <button
+                        className="text-sm absolute top-0 right-2 bg-red-700 rounded-md p-2 mt-2"
+                        onClick={(e) => handleDeleteImg(idx, e)}
+                      >
+                        <FaTrash className="text-white" />
+                      </button>
+                    </>
                   ) : (
                     <div className="flex flex-col items-center">
                       <span className="text-4xl text-gray-400">+</span>
@@ -141,10 +209,10 @@ const CreateProduct = () => {
                     </div>
                   )}
                   <input
-                    id={`fileInput${num}`}
+                    id={`fileInput${idx + 1}`}
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleImageChange(e, `image${num}`)}
+                    onChange={(e) => handleImageChange(e, idx)}
                     className="hidden"
                   />
                 </div>
@@ -164,7 +232,9 @@ const CreateProduct = () => {
               name="title"
               className="w-full border border-gray-300 rounded-lg px-4 py-2"
               placeholder="Enter item title"
+              maxLength={80}
               required
+              defaultValue={initialData?.title || ""}
             />
           </div>
           <div className="w-1/3">
@@ -177,9 +247,30 @@ const CreateProduct = () => {
               className="w-full border border-gray-300 rounded-lg px-4 py-2"
               placeholder="Enter price"
               step="5"
+              min={50}
+              defaultValue={initialData?.price || ""}
               required
             />
+            {formErrors.price && (
+              <p className="text-red-600 text-sm mt-1">{formErrors.price}</p>
+            )}
           </div>
+        </div>
+
+        {/* Short Description */}
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">
+            Short Description
+          </label>
+          <textarea
+            name="shortDescription"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2"
+            placeholder="Share important points"
+            maxLength={120}
+            rows="2"
+            required
+            defaultValue={initialData?.shortDescription || ""}
+          />
         </div>
 
         {/* Description */}
@@ -191,8 +282,10 @@ const CreateProduct = () => {
             name="description"
             className="w-full border border-gray-300 rounded-lg px-4 py-2"
             placeholder="Describe your item"
+            maxLength={1000}
             rows="4"
             required
+            defaultValue={initialData?.description || ""}
           />
         </div>
 
@@ -201,29 +294,27 @@ const CreateProduct = () => {
           <label className="block text-gray-700 font-medium mb-2">Tags</label>
           <CreatableSelect
             isMulti
-            name="tags"
-            options={options}
+            options={tagsOption}
             className="basic-multi-select"
             classNamePrefix="select"
             value={tags.map((tag) => ({ value: tag, label: tag }))}
             onChange={(selectedOptions) => {
               setTags(selectedOptions.map((option) => option.value));
             }}
-            onCreateOption={(inputValue) => {
-              const newOption = {
-                value: inputValue.toLowerCase(),
-                label: inputValue,
-              };
-              setTags((prev) => [...prev, newOption.value]);
-            }}
+            onCreateOption={(inputValue) =>
+              setTags((prev) => [...prev, inputValue.toLowerCase()])
+            }
           />
+          {formErrors.tags && (
+            <p className="text-red-600 text-sm mt-1">{formErrors.tags}</p>
+          )}
         </div>
 
         <button
           type="submit"
           className="w-full bg-secondry text-white font-medium py-2 rounded-lg"
         >
-          Submit
+          {FormButton}
         </button>
       </form>
     </div>

@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Toast from "../../../Symbols/Toast";
-import useAxios from "../../../baseURL/axios";
+import axios from "../../../baseURL/axios";
 
 const CreateAdminTab = () => {
-  const axios = useAxios();
   const [toast, setToast] = useState({ status: "", message: "" });
   const [btnLoader, setBtnLoader] = useState(false);
   const [attachedCnic, setAttachedCnic] = useState(null);

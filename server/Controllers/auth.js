@@ -2,7 +2,7 @@ import AuthModel from "../models/authDB.js";
 import TempUser from "../models/tempUser.js";
 import { sendVerificationCode, sendVerifyEmail } from "../mail/email.js";
 import bcrypt from "bcrypt";
-import { generateToken } from "./generateToken.js";
+import { generateToken, verifyToken } from "./generateToken.js";
 
 export const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -382,28 +382,53 @@ export const setNewPasswod = async (req, res) => {
 };
 
 export const updatePassword = async (req, res) => {
-  const { email, role, currentPassword, newpassword } = req.body;
-  const normalizedEmail = email?.trim().toLowerCase();
+  try {
+    const { isValid, decoded } = verifyToken(req, res);
+    if (!isValid) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
 
-  const password = await bcrypt.hash(currentPassword, 10);
-  const user = await AuthModel.findOne({
-    email: normalizedEmail,
-    role,
-    password,
-  });
-  if (!user) {
-    return res.status(200).json({
-      success: false,
-      message: "Invalid Current Password",
-    });
-  } else {
-    const hashedPassword = await bcrypt.hash(newpassword, 10);
-    user.password = hashedPassword;
+    const { email, role } = decoded;
+    const { password, newpassword } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
+
+    // Find user by email & role (without password in query)
+    const user = await AuthModel.findOne({ email: normalizedEmail, role });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    // Compare the provided password with stored hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid current password",
+      });
+    }
+
+    // Hash new password
+    const hashedNewPassword = await bcrypt.hash(newpassword, 10);
+    user.password = hashedNewPassword;
     await user.save();
+
+    // Generate new token (if needed)
     generateToken(user, res);
+
     return res.status(200).json({
       success: true,
       message: "Password updated successfully.",
+    });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while updating the password.",
     });
   }
 };

@@ -1,20 +1,9 @@
-import { useCookies } from "react-cookie";
 import axios from "axios";
 
-const useAxios = () => {
-  const [cookies] = useCookies(["token"]);
+// Configure axios globally
+axios.defaults.baseURL = "http://localhost:4400";
+axios.defaults.timeout = 10000;
+axios.defaults.headers.common["Content-Type"] = "application/json";
+axios.defaults.withCredentials = true;
 
-  const api = axios.create({
-    baseURL: "http://localhost:4400",
-    timeout: 10000,
-    headers: {
-      "Content-Type": "application/json",
-      token: cookies.token || "",
-    },
-    withCredentials: true,
-  });
-
-  return api;
-};
-
-export default useAxios;
+export default axios;

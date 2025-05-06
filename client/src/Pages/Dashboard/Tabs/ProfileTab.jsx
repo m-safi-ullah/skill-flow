@@ -1,10 +1,11 @@
 import React, { useState, useContext, useEffect } from "react";
 import { GlobalContext } from "../../context/context";
 import defaultImg from "../../../images/defaultProfilePic.png";
-import useAxios from "../../../baseURL/axios";
+import axios from "../../../baseURL/axios";
 import CreatableSelect from "react-select/creatable";
 import Toast from "../../../Symbols/Toast";
 import Loading from "../../../Symbols/Loading";
+import { SkillsArray } from "../../../Symbols/SkillsArray";
 
 const ProfileForm = () => {
   const [skills, setSkills] = useState([]);
@@ -12,14 +13,9 @@ const ProfileForm = () => {
   const [toast, setToast] = useState({ status: "", message: "" });
   const [profileFile, setProfileFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [options, setOptions] = useState([
-    { value: "Baking", label: "Baking" },
-    { value: "Cooking", label: "Cooking" },
-    { value: "Painting", label: "Painting" },
-  ]);
+  const options = SkillsArray;
   const { authName, authEmail, setAuthName, authRole } =
     useContext(GlobalContext);
-  const axios = useAxios();
 
   // Handle file input change
   const handleProfilePicChange = (e) => {
@@ -38,8 +34,6 @@ const ProfileForm = () => {
     setLoading(true);
     setAuthName(e.target.name.value);
     formData.append("name", e.target.name.value);
-    formData.append("email", authEmail);
-    formData.append("role", authRole);
     formData.append("phone", e.target.phone.value);
     formData.append("address", e.target.address.value);
     formData.append("about", e.target.about.value);
@@ -59,11 +53,11 @@ const ProfileForm = () => {
         .then((res) => {
           if (res.data.success) {
             setLoading(false);
-            setToast({ status: "success", message: res.data.message });
-            window.scrollTo({
-              top: 0,
-              behavior: "smooth",
-            });
+            window.location.href = "dashboard?tab=dashboard";
+            // window.scrollTo({
+            //   top: 0,
+            //   behavior: "smooth",
+            // });
           } else {
             setToast({ status: "error", message: res.data.message });
           }
@@ -76,29 +70,25 @@ const ProfileForm = () => {
 
   // get profile data
   useEffect(() => {
-    if (authName && authEmail && authRole) {
-      setLoading(true);
-      axios
-        .get("/dashboard/getProfile", {
-          params: { name: authName, email: authEmail, role: authRole },
-        })
-        .then((res) => {
-          if (res.data.success) {
-            const { profile } = res.data;
-            setProfilePic(profile.profilePic);
-            setSkills(profile.skills ? JSON.parse(profile.skills) : []);
-            document.getElementsByName("name")[0].value = profile.name;
-            document.getElementsByName("phone")[0].value = profile.phone || "";
-            document.getElementsByName("address")[0].value = profile.address;
-            document.getElementsByName("about")[0].value = profile.about;
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.error("Error fetching profile:", err);
-        });
-    }
-  }, [authName, authEmail, authRole]);
+    setLoading(true);
+    axios
+      .get("/dashboard/getProfile")
+      .then((res) => {
+        if (res.data.success) {
+          const { profile } = res.data;
+          setProfilePic(profile.profilePic);
+          setSkills(profile.skills ? JSON.parse(profile.skills) : []);
+          document.getElementsByName("name")[0].value = profile.name;
+          document.getElementsByName("phone")[0].value = profile.phone || "";
+          document.getElementsByName("address")[0].value = profile.address;
+          document.getElementsByName("about")[0].value = profile.about;
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching profile:", err);
+      });
+  }, [window.location]);
 
   return (
     <div className="p-5">
@@ -195,11 +185,11 @@ const ProfileForm = () => {
             name="about"
             className="w-full border border-gray-300 rounded-lg px-4 py-2"
             placeholder="Write about yourself"
-            maxLength={500}
+            maxLength={1000}
             rows="4"
           />
         </div>
-        {authRole !== "admin" && (
+        {authRole == "seller" && (
           <>
             <h3 className="text-xl font-medium mb-3">Skills and Expertise</h3>
             <CreatableSelect
@@ -221,7 +211,6 @@ const ProfileForm = () => {
                   value: inputValue.toLowerCase(),
                   label: inputValue,
                 };
-                setOptions((prev) => [...prev, newOption]);
                 setSkills((prev) => [...prev, newOption.value]);
               }}
             />

@@ -12,6 +12,7 @@ import ResetPassword from "./Pages/AuthenticationPages/ResetPassword";
 import Loader from "./Pages/loader/loader";
 import SellerProfile from "./Pages/Profile/SellerProfile";
 import BuyerProfile from "./Pages/Profile/BuyerProfile";
+import PageNotFound from "./Pages/404Page";
 
 export default function App() {
   return (
@@ -26,8 +27,9 @@ export default function App() {
         <Route path="/become-a-seller" element={<BecomeASeller />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/seller" element={<SellerProfile />} />
-        <Route path="/buyer" element={<BuyerProfile />} />
+        <Route path="/sellers/:name" element={<SellerProfile />} />
+        <Route path="/buyers/:name" element={<BuyerProfile />} />
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
       <Footer />
     </Router>

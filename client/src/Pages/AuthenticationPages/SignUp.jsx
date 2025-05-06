@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import signin from "../../images/singIn.png";
 import { Link } from "react-router-dom";
-import useAxios from "../../baseURL/axios";
+import axios from "../../baseURL/axios";
 import Toast from "../../Symbols/Toast";
 import "../../css/Auth.css";
 import { useCookies } from "react-cookie";
 
 const SignUp = () => {
-  const axios = useAxios();
   const [toast, setToast] = useState({ status: "", message: "" });
   const [btnLoader, setBtnLoader] = useState(false);
   const [formVisibility, setFormVisibility] = useState(true);

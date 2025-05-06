@@ -8,32 +8,58 @@ export const generateToken = (user, res) => {
       email: user.email,
       role: user.role,
     },
-    secret,
-    { expiresIn: "1h" }
+    secret
+    // { expiresIn: "1h" }
   );
   res.cookie("token", token, {
     httpOnly: false,
     secure: true,
-    maxAge: 36000000,
+    // maxAge: 36000000,
   });
 };
 
 export const verifyToken = (req, res) => {
-  const token = req.header("token");
+  try {
+    const cookie = req.header("cookie");
+    if (!cookie) {
+      res.clearCookie("token");
+      return { isValid: false, decoded: null };
+    }
 
-  if (token) {
-    jwt.verify(token, secret, (err, decoded) => {
-      if (err) {
-        return res
-          .status(200)
-          .json({ message: "Invalid token", isValid: false });
-      } else {
-        return res
-          .status(200)
-          .json({ message: "Token is valid", isValid: true });
-      }
-    });
-  } else {
-    return res.status(400).json({ message: "Token not found", isValid: false });
+    const token = cookie.split("=")[1];
+    if (!token) {
+      res.clearCookie("token");
+      location.reload();
+      return { isValid: false, decoded: null };
+    }
+
+    const decoded = jwt.verify(token, secret);
+    return { isValid: true, decoded };
+  } catch (error) {
+    return { isValid: false, decoded: null };
+  }
+};
+
+export const frontEndTokenVerification = (req, res) => {
+  try {
+    const cookie = req.header("cookie");
+    const token = cookie.split("=")[1];
+
+    if (!token) {
+      location.reload();
+      return res
+        .status(401)
+        .json({ isValid: false, message: "Token not found" });
+    }
+
+    jwt.verify(token, secret);
+
+    return res.status(200).json({ isValid: true, message: "User Authorized" });
+  } catch (error) {
+    res.clearCookie("token");
+    console.error("Token verification failed:", error.message);
+    return res
+      .status(403)
+      .json({ isValid: false, message: "UnAuthorized User" });
   }
 };

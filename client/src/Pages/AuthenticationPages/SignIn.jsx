@@ -2,12 +2,11 @@ import React, { useEffect, useState } from "react";
 import signin from "../../images/singIn.png";
 import { Link } from "react-router";
 import Toast from "../../Symbols/Toast";
-import useAxios from "../../baseURL/axios";
+import axios from "../../baseURL/axios";
 import "../../css/Auth.css";
 import { useCookies } from "react-cookie";
 
 const SignIn = () => {
-  const axios = useAxios();
   const [toast, setToast] = useState({ status: "", message: "" });
   const [btnLoader, setbtnLoader] = useState(false);
   const [portal, setPortal] = useState("seller");

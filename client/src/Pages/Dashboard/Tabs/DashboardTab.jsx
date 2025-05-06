@@ -2,24 +2,23 @@ import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import { GlobalContext } from "../../context/context.jsx";
 import defaultProfilePic from "../../../images/defaultProfilePic.png";
-import useAxios from "../../../baseURL/axios";
+import axios from "../../../baseURL/axios";
 import Loading from "../../../Symbols/Loading.jsx";
+import { FaEdit } from "react-icons/fa";
 
 const DashboardTab = () => {
-  const axios = useAxios();
   const { authEmail, authName, authRole } = useContext(GlobalContext);
   const [profileData, setProfileData] = useState({});
-
   const [loading, setLoading] = useState(false);
+
+  const tab = window.location.search.split("=")[1];
 
   // get profile data
   useEffect(() => {
-    setLoading(true);
-    if (authName && authEmail && authRole) {
+    if (tab == "dashboard") {
+      setLoading(true);
       axios
-        .get("/dashboard/getProfile", {
-          params: { name: authName, email: authEmail, role: authRole },
-        })
+        .get("/dashboard/getProfile")
         .then((res) => {
           if (res.data.success) {
             const { profile } = res.data;
@@ -31,18 +30,16 @@ const DashboardTab = () => {
           console.error("Error fetching profile:", err);
         });
     }
-  }, [authName, authEmail, authRole]);
+  }, [tab]);
   return (
     <>
       <Loading visible={loading} />
       <div className="flex flex-wrap gap-5">
         {/* Profile */}
         {profileData && (
-          <div className="bg-white shadow-lg rounded-lg p-6 w-[100%] relative">
+          <div className="bg-white border rounded-lg p-6 w-[48%] relative">
             <Link to="/dashboard?tab=profile">
-              <span className="material-symbols-outlined text-green-600 absolute top-2 right-2">
-                edit_square
-              </span>
+              <FaEdit className="text-green-600 absolute top-2 right-2 text-2xl" />
             </Link>
             <div className="flex items-center">
               <img
@@ -55,11 +52,28 @@ const DashboardTab = () => {
                 className="w-20 h-20 rounded-full"
               />
               <div className="ml-4">
-                <h2 className="text-xl font-semibold">{authName}</h2>
+                <h2 className="text-xl font-semibold">{profileData.name}</h2>
                 <p className="text-gray-500 text-sm mb-2">
                   @{authEmail.split("@")[0]}
                 </p>
-                <p className="text-gray-500 text-sm mb-2">{authEmail}</p>
+                <p className="text-sm text-gray-600 flex items-center gap-1 mb-1">
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m0-2a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2V6z"
+                    />
+                  </svg>
+
+                  {authEmail}
+                </p>
                 <p className="text-sm text-gray-600 flex items-center gap-1">
                   <svg
                     className="h-4 w-4"
@@ -88,12 +102,12 @@ const DashboardTab = () => {
               <h2 className="text-md font-medium">About</h2>
               <p className="text-sm mt-1">
                 {profileData?.about
-                  ? profileData.about.substring(0, 200)
+                  ? profileData.about.substring(0, 300)
                   : "No description available"}
                 ...
               </p>
             </div>
-            {authRole !== "admin" && (
+            {authRole == "seller" && (
               <div className="mt-4 border-t pt-4">
                 <h2 className="text-md font-medium">Skills and Expertise</h2>
                 <ul className="text-sm mt-1 flex gap-2 ">

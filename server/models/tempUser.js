@@ -9,6 +9,7 @@ const AuthSchema = new mongoose.Schema({
   cnic: String,
   codeExpiresAt: String,
   attachCnic: String,
+  method: String,
 });
 
 const TempUser = mongoose.model("tempUser", AuthSchema);

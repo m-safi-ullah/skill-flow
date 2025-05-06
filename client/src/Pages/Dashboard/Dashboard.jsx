@@ -8,12 +8,14 @@ import DashboardTab from "./Tabs/DashboardTab.jsx";
 import ProfileTab from "./Tabs/ProfileTab.jsx";
 import Seller from "./Seller.jsx";
 import SettingTab from "./Tabs/SettingTab.jsx";
+import Loading from "../../Symbols/Loading.jsx";
 
 const Dashboard = () => {
   const [cookies] = useCookies(["token"]);
   const { authRole } = useContext(GlobalContext);
   const [activeSection, setActiveSection] = useState("dashboard");
   const [sidebarHeight, setSidebarHeight] = useState("calc(100vh - 4rem)");
+  const [loading, setLoading] = useState(true);
 
   const location = useLocation();
 
@@ -23,13 +25,12 @@ const Dashboard = () => {
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 64) {
-        // Adjust based on header height
-        setSidebarHeight("100vh"); // Full height when header disappears
+        setSidebarHeight("100vh");
       } else {
         setSidebarHeight("calc(100vh - 4rem)");
       }
     };
-    const tabName = location.search.split("=");
+    const tabName = location.search?.split("&")[0].split("=");
     if (tabName[1]) {
       setActiveSection(tabName[1]);
     } else {
@@ -38,13 +39,23 @@ const Dashboard = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [location]);
+
   useEffect(() => {
+    setLoading(false);
     if (!cookies.token) {
       window.location.href = "/sign-in";
     }
   }, [cookies.token]);
+
+  const [productDropdownOpen, setProductDropdownOpen] = useState(false);
+
+  const toggleProductDropdown = () => {
+    setProductDropdownOpen(!productDropdownOpen);
+  };
+
   return (
     <div>
+      <Loading visible={loading} />
       <div className=" dashboard ">
         <div className="flex">
           <nav
@@ -107,64 +118,128 @@ const Dashboard = () => {
               </li>
               {authRole === "admin" && (
                 <>
-                  <li>
-                    <Link to="/dashboard?tab=add-new-admin">
-                      <button
-                        className={`w-full text-left py-3 px-3 flex group items-center rounded-lg transition-colors duration-200 ${
-                          activeSection === "add-new-admin" ? "active" : ""
-                        }`}
-                        onClick={() => handleSectionChange("add-new-admin")}
-                      >
-                        <svg
-                          className="shrink-0 w-5 h-5 mr-3 text-gray-500 transition duration-75 group-hover:text-gray-900"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          strokeWidth="2"
-                          stroke="currentColor"
-                          fill="none"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          {" "}
-                          <path stroke="none" d="M0 0h24v24H0z" />{" "}
-                          <circle cx="9" cy="7" r="4" />{" "}
-                          <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />{" "}
-                          <path d="M16 11h6m-3 -3v6" />
-                        </svg>
-                        <span className="hidden sm:block">Add New Admin</span>
-                      </button>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/dashboard?tab=admin-list">
-                      <button
-                        className={`w-full text-left py-3 px-3 flex group items-center rounded-lg transition-colors duration-200 ${
-                          activeSection === "admin-list" ? "active" : ""
-                        }`}
-                        onClick={() => handleSectionChange("admin-list")}
-                      >
-                        <svg
-                          className="shrink-0 w-5 h-5 mr-3 text-gray-500 transition duration-75 group-hover:text-gray-900"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          strokeWidth="2"
-                          stroke="currentColor"
-                          fill="none"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          {" "}
-                          <path stroke="none" d="M0 0h24v24H0z" />{" "}
-                          <circle cx="9" cy="7" r="4" />{" "}
-                          <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />{" "}
-                          <path d="M16 11h6m-3 -3v6" />
-                        </svg>
-                        <span className="hidden sm:block">Admin List</span>
-                      </button>
-                    </Link>
-                  </li>
+                  <button
+                    onClick={toggleProductDropdown}
+                    className="w-full text-left py-3 px-3 flex group items-center rounded-lg transition-colors duration-200"
+                  >
+                    <svg
+                      className="shrink-0 w-5 h-5 mr-3 text-gray-500 transition duration-75 group-hover:text-gray-900"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      {" "}
+                      <path stroke="none" d="M0 0h24v24H0z" />{" "}
+                      <circle cx="9" cy="7" r="4" />{" "}
+                      <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />{" "}
+                      <path d="M16 11h6m-3 -3v6" />
+                    </svg>
+                    <span className="hidden sm:block">Admin</span>
+                    <svg
+                      className={`h-7 w-7 text-gray-500  ${
+                        productDropdownOpen ? "pr-2 rotate-180" : "pl-2"
+                      }`}
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path stroke="none" d="M0 0h24v24H0z" />
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                  {productDropdownOpen && (
+                    <ul className="space-y-2 pl-8 mt-2">
+                      <li>
+                        <Link to="/dashboard?tab=add-new-admin">
+                          <button
+                            className={`w-full text-left py-3 px-3 flex group items-center rounded-lg transition-colors duration-200 ${
+                              activeSection === "add-new-admin" ? "active" : ""
+                            }`}
+                            onClick={() => handleSectionChange("add-new-admin")}
+                          >
+                            <svg
+                              className="shrink-0 w-5 h-5 mr-3 text-gray-500 transition duration-75 group-hover:text-gray-900"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              strokeWidth="2"
+                              stroke="currentColor"
+                              fill="none"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <rect
+                                x="4"
+                                y="4"
+                                width="16"
+                                height="16"
+                                rx="4"
+                                stroke="currentColor"
+                                fill="none"
+                              />
+                              <line
+                                x1="12"
+                                y1="8"
+                                x2="12"
+                                y2="16"
+                                stroke="currentColor"
+                              />
+                              <line
+                                x1="8"
+                                y1="12"
+                                x2="16"
+                                y2="12"
+                                stroke="currentColor"
+                              />
+                            </svg>
+                            <span className="hidden sm:block">Add Admin</span>
+                          </button>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/dashboard?tab=admin-list">
+                          <button
+                            className={`w-full text-left py-3 px-3 flex group items-center rounded-lg transition-colors duration-200 ${
+                              activeSection === "admin-list" ? "active" : ""
+                            }`}
+                            onClick={() => handleSectionChange("admin-list")}
+                          >
+                            <svg
+                              className="shrink-0 w-5 h-5 mr-3 text-gray-500 transition duration-75 group-hover:text-gray-900"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              strokeWidth="2"
+                              stroke="currentColor"
+                              fill="none"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path stroke="none" d="M0 0h24v24H0z" />{" "}
+                              <path d="M3.5 5.5l1.5 1.5l2.5 -2.5" />{" "}
+                              <path d="M3.5 11.5l1.5 1.5l2.5 -2.5" />{" "}
+                              <path d="M3.5 17.5l1.5 1.5l2.5 -2.5" />{" "}
+                              <line x1="11" y1="6" x2="20" y2="6" />{" "}
+                              <line x1="11" y1="12" x2="20" y2="12" />{" "}
+                              <line x1="11" y1="18" x2="20" y2="18" />
+                            </svg>
+                            <span className="hidden sm:block">Admin List</span>
+                          </button>
+                        </Link>
+                      </li>
+                    </ul>
+                  )}
                   <li>
                     <Link to="/dashboard?tab=seller-list">
                       <button
@@ -289,43 +364,146 @@ const Dashboard = () => {
               {authRole === "seller" && (
                 <>
                   <li>
-                    <Link to="/dashboard?tab=create-product">
-                      <button
-                        className={`w-full text-left py-3 px-3 flex group items-center rounded-lg transition-colors duration-200 ${
-                          activeSection === "create-product" ? "active" : ""
-                        }`}
-                        onClick={() => handleSectionChange("create-product")}
+                    <button
+                      onClick={toggleProductDropdown}
+                      className="w-full text-left py-3 px-3 flex group items-center rounded-lg transition-colors duration-200"
+                    >
+                      <svg
+                        className="shrink-0 w-5 h-5 mr-3 text-gray-500 transition duration-75 group-hover:text-gray-900"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        strokeWidth="2"
+                        stroke="currentColor"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                        <svg
-                          className="shrink-0 w-5 h-5 mr-3 text-gray-500 transition duration-75 group-hover:text-gray-900"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          stroke-width="2"
-                          stroke="currentColor"
-                          fill="none"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        >
-                          {" "}
-                          <path stroke="none" d="M0 0h24v24H0z" />{" "}
-                          <rect x="4" y="4" width="16" height="6" rx="2" />{" "}
-                          <rect x="4" y="14" width="16" height="6" rx="2" />
-                        </svg>
-                        <span className="hidden sm:block">Create Product</span>
-                      </button>
-                    </Link>
+                        {" "}
+                        <path stroke="none" d="M0 0h24v24H0z" />{" "}
+                        <rect x="4" y="4" width="16" height="6" rx="2" />{" "}
+                        <rect x="4" y="14" width="16" height="6" rx="2" />
+                      </svg>
+                      <span className="hidden sm:block">Products</span>
+                      <svg
+                        className={`h-7 w-7 text-gray-500  ${
+                          productDropdownOpen ? "pr-2 rotate-180" : "pl-2"
+                        }`}
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        strokeWidth="2"
+                        stroke="currentColor"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path stroke="none" d="M0 0h24v24H0z" />
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </button>
+                    {productDropdownOpen && (
+                      <ul className="space-y-2 pl-8 mt-2">
+                        <li>
+                          <Link to="/dashboard?tab=create-product">
+                            <button
+                              className={`w-full text-left py-3 px-3 flex group items-center rounded-lg transition-colors duration-200 ${
+                                activeSection === "create-product"
+                                  ? "active"
+                                  : ""
+                              }`}
+                              onClick={() =>
+                                handleSectionChange("create-product")
+                              }
+                            >
+                              <svg
+                                className="shrink-0 w-5 h-5 mr-3 text-gray-500 transition duration-75 group-hover:text-gray-900"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                strokeWidth="2"
+                                stroke="currentColor"
+                                fill="none"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <rect
+                                  x="4"
+                                  y="4"
+                                  width="16"
+                                  height="16"
+                                  rx="4"
+                                  stroke="currentColor"
+                                  fill="none"
+                                />
+                                <line
+                                  x1="12"
+                                  y1="8"
+                                  x2="12"
+                                  y2="16"
+                                  stroke="currentColor"
+                                />
+                                <line
+                                  x1="8"
+                                  y1="12"
+                                  x2="16"
+                                  y2="12"
+                                  stroke="currentColor"
+                                />
+                              </svg>
+
+                              <span>Create Product</span>
+                            </button>
+                          </Link>
+                        </li>
+                        <li>
+                          <Link to="/dashboard?tab=product-list">
+                            <button
+                              className={`w-full text-left py-3 px-3 flex group items-center rounded-lg transition-colors duration-200 ${
+                                activeSection === "product-list" ? "active" : ""
+                              }`}
+                              onClick={() =>
+                                handleSectionChange("product-list")
+                              }
+                            >
+                              <svg
+                                className="shrink-0 w-5 h-5 mr-3 text-gray-500 transition duration-75 group-hover:text-gray-900"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                strokeWidth="2"
+                                stroke="currentColor"
+                                fill="none"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <path stroke="none" d="M0 0h24v24H0z" />{" "}
+                                <path d="M3.5 5.5l1.5 1.5l2.5 -2.5" />{" "}
+                                <path d="M3.5 11.5l1.5 1.5l2.5 -2.5" />{" "}
+                                <path d="M3.5 17.5l1.5 1.5l2.5 -2.5" />{" "}
+                                <line x1="11" y1="6" x2="20" y2="6" />{" "}
+                                <line x1="11" y1="12" x2="20" y2="12" />{" "}
+                                <line x1="11" y1="18" x2="20" y2="18" />
+                              </svg>
+                              <span>Product List</span>
+                            </button>
+                          </Link>
+                        </li>
+                      </ul>
+                    )}
                   </li>
                   <li>
-                    <Link to="/dashboard?tab=product-list">
+                    <Link to="/dashboard?tab=portfolio">
                       <button
                         className={`w-full text-left py-3 px-3 flex group items-center rounded-lg transition-colors duration-200 ${
-                          activeSection === "product-list" ? "active" : ""
+                          activeSection === "portfolio" ? "active" : ""
                         }`}
-                        onClick={() => handleSectionChange("product-list")}
+                        onClick={() => handleSectionChange("portfolio")}
                       >
                         <svg
                           className="shrink-0 w-5 h-5 mr-3 text-gray-500 transition duration-75 group-hover:text-gray-900"
+                          xmlns="http://www.w3.org/2000/svg"
                           width="24"
                           height="24"
                           viewBox="0 0 24 24"
@@ -335,15 +513,32 @@ const Dashboard = () => {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                         >
-                          <path stroke="none" d="M0 0h24v24H0z" />{" "}
-                          <path d="M3.5 5.5l1.5 1.5l2.5 -2.5" />{" "}
-                          <path d="M3.5 11.5l1.5 1.5l2.5 -2.5" />{" "}
-                          <path d="M3.5 17.5l1.5 1.5l2.5 -2.5" />{" "}
-                          <line x1="11" y1="6" x2="20" y2="6" />{" "}
-                          <line x1="11" y1="12" x2="20" y2="12" />{" "}
-                          <line x1="11" y1="18" x2="20" y2="18" />
+                          <rect
+                            x="4"
+                            y="4"
+                            width="16"
+                            height="16"
+                            rx="4"
+                            stroke="currentColor"
+                            fill="none"
+                          />
+                          <line
+                            x1="12"
+                            y1="8"
+                            x2="12"
+                            y2="16"
+                            stroke="currentColor"
+                          />
+                          <line
+                            x1="8"
+                            y1="12"
+                            x2="16"
+                            y2="12"
+                            stroke="currentColor"
+                          />
                         </svg>
-                        <span className="hidden sm:block">Product List</span>
+
+                        <span>Portfolio</span>
                       </button>
                     </Link>
                   </li>

@@ -55,32 +55,32 @@ function Header() {
           >
             <div className="flex menu flex-col lg:flex-row space-y-4 lg:space-y-0 items-center">
               <Link
-                to="#"
+                to="/"
                 className="text-gray-600 hover:text-gray-800 font-medium"
                 onClick={() => setMenuOpen(false)}
               >
-                Product
+                Home
               </Link>
               <Link
                 to="#"
                 className="text-gray-600 hover:text-gray-800 font-medium"
                 onClick={() => setMenuOpen(false)}
               >
-                Solutions
+                About Us
               </Link>
               <Link
                 to="#"
                 className="text-gray-600 hover:text-gray-800 font-medium"
                 onClick={() => setMenuOpen(false)}
               >
-                Resources
+                FAQ
               </Link>
               <Link
                 to="#"
                 className="text-gray-600 hover:text-gray-800 font-medium"
                 onClick={() => setMenuOpen(false)}
               >
-                Open Source
+                Services
               </Link>
 
               {cookies.token ? (
@@ -88,7 +88,7 @@ function Header() {
                   <div className="flex">
                     Hi, {authName?.split(" ")[0]}{" "}
                     <svg
-                      className="h-5 w-5 text-gray-500"
+                      className="h-5 w-5 text-gray-500 "
                       width="24"
                       height="24"
                       viewBox="0 0 24 24"

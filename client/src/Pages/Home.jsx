@@ -1,6 +1,6 @@
 import React from "react";
 import "../css/Home.css";
-
+import { Link } from "react-router-dom";
 const Home = () => {
   return (
     <main>
@@ -25,12 +25,12 @@ const Home = () => {
               </button>
             </div>
           </div>
-          <a
-            href="#open-account"
+          <Link
+            to="/sign-up"
             className="inline-block bg-green-500 text-white text-lg font-medium px-6 py-3 rounded-lg mt-6 hover:bg-green-600"
           >
             Open Your Account
-          </a>
+          </Link>
         </div>
       </section>
 
@@ -98,12 +98,12 @@ const Home = () => {
         <p className="text-gray-600 mt-4">
           Open your Payoneer account today and experience the benefits.
         </p>
-        <a
-          href="#open-account"
+        <Link
+          to="/sign-in"
           className="inline-block bg-green-500 text-white text-lg font-medium px-6 py-3 rounded-lg mt-6 hover:bg-green-600"
         >
           Open Your Account
-        </a>
+        </Link>
       </section>
 
       <section className="py-16 mt-12 bg-gray-50">

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import useAxios from "../../../baseURL/axios";
+import axios from "../../../baseURL/axios";
 import { useLocation } from "react-router-dom";
 
 const UsersListTab = ({ list }) => {
-  const axios = useAxios();
   const location = useLocation();
   const path = location.pathname === `/${list}-list`;
   const [sellers, setSellers] = useState([]);

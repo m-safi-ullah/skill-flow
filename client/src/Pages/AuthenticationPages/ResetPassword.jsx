@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import useAxios from "../../baseURL/axios";
+import axios from "../../baseURL/axios";
 import signin from "../../images/singIn.png";
 import Toast from "../../Symbols/Toast";
-import { Link } from "react-router-dom";
 
 const ResetPassword = () => {
-  const axios = useAxios();
   const [toast, setToast] = useState({ status: "", message: "" });
   const [btnLoader, setBtnLoader] = useState(false);
   const [formVisibility, setFormVisibility] = useState("verifyEmail");
@@ -18,7 +16,10 @@ const ResetPassword = () => {
     setToast({ status: "", message: "" });
 
     axios
-      .post("/auth/verify-email", { email, role: portal })
+      .post("/auth/verify-email", {
+        email,
+        role: portal,
+      })
       .then((response) => {
         if (response.data.success) {
           setToast({ status: "success", message: "OTP sent to your email" });
@@ -125,6 +126,37 @@ const ResetPassword = () => {
                   className="w-full p-2 focus:outline-none border border-gray-300 rounded mb-4"
                   required
                 />
+                <div className="mb-4 ">
+                  <label className="block text-gray-700 font-medium mb-2">
+                    Select Portal
+                  </label>
+                  <div className="flex portal">
+                    <p
+                      className={`cursor-pointer px-4 py-2 rounded-lg ${
+                        portal === "seller" ? "active" : ""
+                      }`}
+                      onClick={() => setPortal("seller")}
+                    >
+                      Seller
+                    </p>
+                    <p
+                      className={`cursor-pointer px-4 py-2 rounded-lg ${
+                        portal === "buyer" ? "active" : ""
+                      }`}
+                      onClick={() => setPortal("buyer")}
+                    >
+                      Buyer
+                    </p>
+                    <p
+                      className={`cursor-pointer px-4 py-2 rounded-lg ${
+                        portal === "admin" ? "active" : ""
+                      }`}
+                      onClick={() => setPortal("admin")}
+                    >
+                      Admin
+                    </p>
+                  </div>
+                </div>
                 <button
                   type="submit"
                   className="w-full button text-white font-medium py-2 rounded-lg focus:outline-none"

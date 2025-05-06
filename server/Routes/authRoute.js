@@ -11,7 +11,7 @@ import {
   updatePassword,
 } from "../Controllers/auth.js";
 
-import { verifyToken } from "../Controllers/generateToken.js";
+import { frontEndTokenVerification } from "../Controllers/generateToken.js";
 
 const router = express.Router();
 
@@ -40,7 +40,7 @@ router.post("/register", register);
 router.post("/admin-register", upload.single("attachCnic"), adminRegister);
 router.post("/seller-register", upload.single("attachCnic"), sellerRegister);
 router.post("/verify-otp", verifyOtp);
-router.post("/verify-token", verifyToken);
+router.post("/verify-token", frontEndTokenVerification);
 router.post("/verify-email", verifyEmail);
 router.post("/reset-password", setNewPasswod);
 router.post("/update-password", updatePassword);
