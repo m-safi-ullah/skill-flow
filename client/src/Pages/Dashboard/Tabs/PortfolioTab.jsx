@@ -359,6 +359,20 @@ const PortfolioTab = () => {
                   <p className="text-sm text-gray-600 mt-2 line-clamp-3">
                     {product.description}
                   </p>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {product?.tags && JSON.parse(product?.tags).length > 0
+                      ? JSON.parse(product?.tags || "[]").map(
+                          (skill, index) => (
+                            <span
+                              className="bg-gray-100 px-2 mr-1 rounded-md"
+                              key={index}
+                            >
+                              {skill}
+                            </span>
+                          )
+                        )
+                      : "No skills added"}
+                  </div>
                 </div>
               ))}
             </div>

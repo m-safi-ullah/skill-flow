@@ -4,10 +4,10 @@ import { GlobalContext } from "../../context/context.jsx";
 import defaultProfilePic from "../../../images/defaultProfilePic.png";
 import axios from "../../../baseURL/axios";
 import Loading from "../../../Symbols/Loading.jsx";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaEye } from "react-icons/fa";
 
 const DashboardTab = () => {
-  const { authEmail, authName, authRole } = useContext(GlobalContext);
+  const { authEmail, authRole } = useContext(GlobalContext);
   const [profileData, setProfileData] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -34,13 +34,22 @@ const DashboardTab = () => {
   return (
     <>
       <Loading visible={loading} />
+
       <div className="flex flex-wrap gap-5">
+        <Link
+          to={`/${authRole}/${authEmail.split("@")[0]}`}
+          className="inline-flex items-center gap-2 border border-gray-300 text-gray-800  font-medium px-3 hover:bg-gray-100 py-2 rounded-md text-sm transition absolute top-15 right-4"
+        >
+          <FaEye className="text-gray-600 text-xl" />
+          Preview
+        </Link>
         {/* Profile */}
         {profileData && (
           <div className="bg-white border rounded-lg p-6 w-[48%] relative">
             <Link to="/dashboard?tab=profile">
               <FaEdit className="text-green-600 absolute top-2 right-2 text-2xl" />
             </Link>
+
             <div className="flex items-center">
               <img
                 src={
