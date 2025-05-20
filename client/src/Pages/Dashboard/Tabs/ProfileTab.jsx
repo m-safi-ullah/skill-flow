@@ -204,14 +204,14 @@ const ProfileForm = () => {
                   : []
               }
               onChange={(selectedOptions) => {
-                setSkills(selectedOptions.map((option) => option.value));
+                if (!selectedOptions || selectedOptions.length <= 5) {
+                  setTags(selectedOptions.map((option) => option.value));
+                }
               }}
               onCreateOption={(inputValue) => {
-                const newOption = {
-                  value: inputValue.toLowerCase(),
-                  label: inputValue,
-                };
-                setSkills((prev) => [...prev, newOption.value]);
+                if (tags.length < 5) {
+                  setSkills((prev) => [...prev, inputValue.toLowerCase()]);
+                }
               }}
             />
           </>

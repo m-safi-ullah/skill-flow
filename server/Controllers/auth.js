@@ -277,7 +277,7 @@ export const sellerRegister = async (req, res) => {
     const verificationCode = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
-    const codeExpiresAt = Date.now() + 24 * 60 * 60 * 1000; // Expires in 24 hours
+    const codeExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
 
     let tempUser = await TempUser.findOne({ email: normalizedEmail });
 
@@ -403,7 +403,7 @@ export const updatePassword = async (req, res) => {
     }
 
     // Compare the provided password with stored hashed password
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(400).json({

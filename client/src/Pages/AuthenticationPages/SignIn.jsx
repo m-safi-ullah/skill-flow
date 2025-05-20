@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import signin from "../../images/singIn.png";
 import { Link } from "react-router";
 import Toast from "../../Symbols/Toast";
@@ -29,8 +29,12 @@ const SignIn = () => {
     axios
       .post("/auth/signIn", formData)
       .then((response) => {
+        const params = new URLSearchParams(window.location.search);
+        const redirectUrl = params.get("redirectUrl");
         if (response.data.success) {
-          window.location.href = "/dashboard";
+          if (redirectUrl)
+            window.location.href = decodeURIComponent(redirectUrl);
+          else window.location.href = "/dashboard";
         } else {
           setbtnLoader(false);
           setToast({
@@ -56,7 +60,7 @@ const SignIn = () => {
           <div className="hidden md:block m-auto">
             <img src={signin} alt="Sign In" className="w-full" />
           </div>
-          <div>
+          <div className="my-auto">
             <form onSubmit={handleSubmit} className="form">
               <h2 className="text-2xl font-semibold mb-2">
                 Sign in to your account

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useCookies } from "react-cookie";
 import { GlobalContext } from "../context/context.jsx";
 import Admin from "./Admin.jsx";
@@ -403,7 +403,7 @@ const Dashboard = () => {
                       </svg>
                     </button>
                     {productDropdownOpen && (
-                      <ul className="space-y-2 pl-8 mt-2">
+                      <ul className="space-y-2 pl-5 mt-2">
                         <li>
                           <Link to="/dashboard?tab=create-product">
                             <button
@@ -539,6 +539,38 @@ const Dashboard = () => {
                         </svg>
 
                         <span>Portfolio</span>
+                      </button>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/dashboard?tab=skills-test">
+                      <button
+                        className={`w-full text-left py-3 px-3 flex group items-center rounded-lg transition-colors duration-200 ${
+                          activeSection === "skills-test" ? "active" : ""
+                        }`}
+                        onClick={() => handleSectionChange("skills-test")}
+                      >
+                        <svg
+                          className="shrink-0 w-5 h-5 mr-3 text-gray-500 transition duration-75 group-hover:text-gray-900"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M9 2H15C15.55 2 16 2.45 16 3V4H18C19.1 4 20 4.9 20 6V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V6C4 4.9 4.9 4 6 4H8V3C8 2.45 8.45 2 9 2Z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M9 12L11 14L15 10"
+                          />
+                        </svg>
+
+                        <span>Skills Test</span>
                       </button>
                     </Link>
                   </li>

@@ -1,5 +1,5 @@
 import AuthModel from "../models/authDB.js";
-import ProfileModel from "../models/profile.js";
+import ProfileModel from "../models/Profile.js";
 import Products from "../models/Product.js";
 import { verifyToken } from "../Controllers/generateToken.js";
 import Portfolios from "../models/Portfolios.js";
@@ -59,23 +59,12 @@ export const getProfile = async (req, res) => {
     let name = "";
 
     if (req.query.portal && req.query.name) {
-      const { name: queryName, portal } = req.query;
+      const { name, portal } = req.query;
       role = portal;
-      name = queryName;
-      const emailUsername = queryName.toLowerCase();
 
       profile = await ProfileModel.findOne({
         role,
-        $expr: {
-          $eq: [
-            {
-              $toLower: {
-                $substrBytes: ["$email", 0, { $indexOfBytes: ["$email", "@"] }],
-              },
-            },
-            emailUsername,
-          ],
-        },
+        username: name,
       });
 
       if (profile) {
@@ -111,6 +100,7 @@ export const getProfile = async (req, res) => {
         profilePic: "",
         name: name || "",
         email: normalizedEmail,
+        username: normalizedEmail,
         role: role || "",
         phone: "",
         address: "",
@@ -121,6 +111,64 @@ export const getProfile = async (req, res) => {
       await newProfile.save();
       return res.status(200).json({ success: true, profile: newProfile });
     }
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error." });
+  }
+};
+
+export const updateUsername = async (req, res) => {
+  try {
+    const { isValid, decoded } = verifyToken(req, res);
+    if (!isValid) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const { email, role } = decoded;
+    const { username } = req.body;
+
+    if (!username) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Username is required." });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await ProfileModel.findOne({
+      email: normalizedEmail,
+      role,
+    });
+
+    const existingUser = await ProfileModel.findOne({
+      username,
+      email: { $ne: normalizedEmail },
+      // role: { $ne: role },
+    });
+
+    if (existingUser) {
+      return res.status(200).json({
+        success: false,
+        message: "Username not avaialble.",
+        profile: user,
+      });
+    }
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found." });
+    }
+
+    user.username = username;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Username updated successfully.",
+      profile: user,
+    });
   } catch (error) {
     console.error(error);
     return res
@@ -221,8 +269,9 @@ export const addProduct = async (req, res) => {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    const { email, role } = decoded;
-    const { title, price, description, shortDescription, tags } = req.body;
+    const { email, role, id } = decoded;
+    const { title, price, description, shortDescription, isFile, tags } =
+      req.body;
 
     let imagePaths = [];
     if (req.files && Array.isArray(req.files)) {
@@ -230,10 +279,12 @@ export const addProduct = async (req, res) => {
     }
 
     const newItem = new Products({
+      profileId: id || null,
       email,
       role,
       title,
       price,
+      isFile,
       shortDescription,
       description,
       tags,
@@ -261,21 +312,18 @@ export const getProduct = async (req, res) => {
 
     if (req.query.name && req.query.portal) {
       const { name, portal } = req.query;
-      const emailUsername = name.toLowerCase();
 
-      products = await Products.find({
-        role: portal,
-        $expr: {
-          $eq: [
-            {
-              $toLower: {
-                $substrBytes: ["$email", 0, { $indexOfBytes: ["$email", "@"] }],
-              },
-            },
-            emailUsername,
-          ],
-        },
-      });
+      const profile = await ProfileModel.findOne({ username: name });
+
+      if (!profile) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Profile not found" });
+      }
+
+      const email = profile.email;
+
+      products = await Products.find({ role: portal, email }).exec();
     } else {
       const { isValid, decoded } = verifyToken(req, res);
       if (!isValid) {
@@ -286,6 +334,11 @@ export const getProduct = async (req, res) => {
 
       const { email, role } = decoded;
       products = await Products.find({ email, role });
+      const profileData = await ProfileModel.findOne({ email, role });
+      products = products.map((product) => ({
+        ...product.toObject(),
+        username: profileData?.username,
+      }));
     }
 
     return res.status(200).json({ success: true, products });
@@ -299,12 +352,21 @@ export const getProduct = async (req, res) => {
 
 export const getProductById = async (req, res) => {
   try {
+    let product;
     const { id } = req.query;
-    const { decoded } = verifyToken(req, res);
-    const { email } = decoded;
+    const { isValid, decoded } = verifyToken(req, res);
 
-    const product = await Products.findOne({ _id: id, email });
-    return res.status(200).json({ success: true, product });
+    if (id && !isValid) {
+      product = await Products.findOne({ _id: id });
+      return res.status(200).json({ success: true, product });
+    } else if (id && isValid) {
+      product = await Products.findOne({ _id: id });
+      return res.status(200).json({ success: true, product });
+    } else {
+      const { email } = decoded;
+      product = await Products.findOne({ _id: id, email });
+      return res.status(200).json({ success: true, product });
+    }
   } catch (error) {
     console.error(error);
     return res
@@ -344,6 +406,7 @@ export const updateProduct = async (req, res) => {
       title,
       price,
       description,
+      isFile,
       shortDescription,
       tags,
       deletedImages = "[]",
@@ -381,6 +444,7 @@ export const updateProduct = async (req, res) => {
     // Update fields
     existingProduct.title = title;
     existingProduct.price = price;
+    existingProduct.isFile = isFile;
     existingProduct.description = description;
     existingProduct.shortDescription = shortDescription;
     existingProduct.tags = tags;
@@ -411,10 +475,11 @@ export const addPortfolio = async (req, res) => {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    const { email } = decoded;
+    const { email, id } = decoded;
     const { title, price, description, tags } = req.body;
 
     const newItem = new Portfolios({
+      profileId: id,
       email,
       title,
       price,
@@ -442,20 +507,15 @@ export const getPortfolio = async (req, res) => {
 
     if (req.query.name) {
       const { name } = req.query;
-      const emailUsername = name.toLowerCase();
+      const profile = await ProfileModel.findOne({ username: name });
 
-      products = await Portfolios.find({
-        $expr: {
-          $eq: [
-            {
-              $toLower: {
-                $substrBytes: ["$email", 0, { $indexOfBytes: ["$email", "@"] }],
-              },
-            },
-            emailUsername,
-          ],
-        },
-      });
+      if (!profile) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Profile not found" });
+      }
+      const email = profile.email;
+      products = await Portfolios.find({ email });
     } else {
       const { isValid, decoded } = verifyToken(req, res);
       if (!isValid) {
@@ -468,6 +528,7 @@ export const getPortfolio = async (req, res) => {
       products = await Portfolios.find({ email });
     }
 
+    // Return the filtered portfolio
     return res.status(200).json({ success: true, products });
   } catch (error) {
     console.error(error);

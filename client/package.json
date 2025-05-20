@@ -11,6 +11,10 @@
     "start": "vite"
   },
   "dependencies": {
+    "@cometchat/calls-sdk-javascript": "^4.1.0",
+    "@cometchat/chat-sdk-javascript": "^4.0.12",
+    "@cometchat/chat-uikit-react": "^6.0.6",
+    "@google/generative-ai": "^0.24.1",
     "@heroicons/react": "^1.0.6",
     "axios": "^1.7.9",
     "js-cookie": "^3.0.5",
@@ -20,7 +24,10 @@
     "react-dom": "^18.3.1",
     "react-icons": "^5.4.0",
     "react-select": "^5.10.0",
-    "react-toastify": "^11.0.3"
+    "react-toastify": "^11.0.3",
+    "stream-chat": "^9.1.1",
+    "stream-chat-react": "^13.0.0",
+    "swiper": "^11.2.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -36,6 +43,6 @@
     "postcss": "^8.5.1",
     "react-router-dom": "^7.1.2",
     "tailwindcss": "^3.4.17",
-    "vite": "^6.0.3"
+    "vite": "^6.3.5"
   }
 }

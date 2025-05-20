@@ -3,7 +3,7 @@ import CreatableSelect from "react-select/creatable";
 import axios from "../../../baseURL/axios";
 import Toast from "../../../Symbols/Toast";
 import Loading from "../../../Symbols/Loading";
-import { FaTrash, FaEdit } from "react-icons/fa";
+import { FaTrash, FaPen } from "react-icons/fa";
 import { SkillsArray } from "../../../Symbols/SkillsArray";
 import DeleteModal from "../../../Symbols/DeleteModal";
 
@@ -165,7 +165,7 @@ const PortfolioTab = () => {
       <Loading visible={loading} />
       <Toast status={toast.status} message={toast.message} />
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-medium mb-4">Portfolio</h3>
+        <h3 className="text-xl font-medium">Portfolio</h3>
         {!showPortfolio && (
           <button
             className="border px-2 py-1 text-white rounded-md bg-primary"
@@ -251,12 +251,16 @@ const PortfolioTab = () => {
               className="basic-multi-select"
               classNamePrefix="select"
               value={tags.map((tag) => ({ value: tag, label: tag }))}
-              onChange={(selectedOptions) =>
-                setTags(selectedOptions.map((option) => option.value))
-              }
-              onCreateOption={(inputValue) =>
-                setTags((prev) => [...prev, inputValue.toLowerCase()])
-              }
+              onChange={(selectedOptions) => {
+                if (!selectedOptions || selectedOptions.length <= 5) {
+                  setTags(selectedOptions.map((option) => option.value));
+                }
+              }}
+              onCreateOption={(inputValue) => {
+                if (tags.length < 5) {
+                  setTags((prev) => [...prev, inputValue.toLowerCase()]);
+                }
+              }}
             />
             {formErrors.tags && (
               <p className="text-red-600 text-sm mt-1">{formErrors.tags}</p>
@@ -320,7 +324,7 @@ const PortfolioTab = () => {
         </form>
       )}
       {!showPortfolio && (
-        <div className="mt-8">
+        <div className="mt-4">
           {products.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {products.map((product) => (
@@ -328,14 +332,14 @@ const PortfolioTab = () => {
                   key={product._id}
                   className="bg-white rounded-lg border p-4 transition-shadow"
                 >
-                  <div className="relative ">
+                  <div className="relative">
                     <button
-                      className="text-sm absolute top-0 right-12 bg-white rounded-full p-[0.36rem] mt-2"
+                      className="text-sm absolute top-0 right-12 bg-primary  rounded-full p-[0.5rem] mt-2"
                       onClick={() => handleUpdateItem(product)}
                     >
-                      <FaEdit className="text-primary text-lg" />
+                      <FaPen className="text-white text-md" />
                     </button>
-                    <button className="text-sm absolute top-0 right-2 p-2">
+                    <button className="text-sm absolute top-0 right-1 p-2">
                       <DeleteModal
                         handleDelete={() => handleDeleteItem(product._id)}
                       />

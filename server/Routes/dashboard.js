@@ -14,7 +14,10 @@ import {
   getPortfolio,
   updatePortfolio,
   deletePortfolio,
+  updateUsername,
 } from "../Controllers/dashboard.js";
+
+import { test } from "../Controllers/test.js";
 
 const createMulterConfig = (destination) =>
   multer({
@@ -51,6 +54,8 @@ router.get("/getProfile", getProfile);
 router.get("/getUserList", getUserList);
 router.get("/deleteUser", deleteUser);
 
+router.post("/updateUsername", updateUsername);
+
 // Product routes
 router.post(
   "/createProduct",
@@ -86,5 +91,7 @@ router.patch(
 );
 
 router.delete("/deletePortfolio", deletePortfolio);
+
+router.post("/test", test);
 
 export default router;

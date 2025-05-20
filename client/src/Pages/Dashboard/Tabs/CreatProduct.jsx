@@ -5,6 +5,7 @@ import Toast from "../../../Symbols/Toast";
 import Loading from "../../../Symbols/Loading";
 import { FaTrash } from "react-icons/fa";
 import { SkillsArray } from "../../../Symbols/SkillsArray";
+import GemeniProductDescription from "../../utils/GemeniProductDescription";
 
 const CreateProduct = () => {
   const [tags, setTags] = useState([]);
@@ -13,14 +14,14 @@ const CreateProduct = () => {
   const [FormButton, setFormButton] = useState("Submit");
   const [formErrors, setFormErrors] = useState({ price: "", tags: "" });
   const [deletedServerImages, setDeletedServerImages] = useState([]);
+  const [spinnerGenerator, setSpinnerGenerator] = useState(false);
+  const [isFile, setIsFile] = useState(false);
 
   const [images, setImages] = useState(
     Array(4).fill({ file: null, preview: "" })
   );
 
   const [initialData, setInitialData] = useState(null);
-
-  const tagsOption = SkillsArray;
 
   useEffect(() => {
     if (location.search.includes("&")) {
@@ -35,6 +36,8 @@ const CreateProduct = () => {
             const { product } = response.data;
             setInitialData(product);
             setTags(JSON.parse(product?.tags) || []);
+            setIsFile(product?.isFile);
+
             const productImages = Array(4).fill({ file: null, preview: "" });
             product.image?.forEach((img, idx) => {
               if (idx < 4) {
@@ -118,6 +121,7 @@ const CreateProduct = () => {
 
     const formData = new FormData(e.target);
     formData.append("tags", JSON.stringify(tags));
+    formData.append("isFile", isFile);
 
     images.forEach((imageObj) => {
       if (imageObj.file) {
@@ -161,12 +165,44 @@ const CreateProduct = () => {
     }
   };
 
+  const handleGenerateDescription = async (e) => {
+    e.preventDefault();
+    setSpinnerGenerator(true);
+
+    const form = document.getElementById("form");
+    const titleInput = form.elements["title"];
+    const descriptionInput = form.elements["description"];
+
+    const title = titleInput.value;
+    descriptionInput.value = "";
+
+    if (!title) {
+      setSpinnerGenerator(false);
+      setToast({
+        status: "error",
+        message: "Please enter a title before generating a description.",
+      });
+      return;
+    }
+
+    const { success, description } = await GemeniProductDescription(title);
+    if (success) {
+      descriptionInput.value = description;
+    } else {
+      setToast({
+        status: "error",
+        message: "Failed to generate description.",
+      });
+    }
+    setSpinnerGenerator(false);
+  };
+
   return (
     <div className="p-5">
       <Loading visible={loading} />
       <Toast status={toast.status} message={toast.message} />
       <form onSubmit={handleSubmit} id="form">
-        <h3 className="text-xl font-medium mb-4">Product Information</h3>
+        <h3 className="text-xl font-medium mb-4">Create Product</h3>
 
         {/* Images Section */}
         <div className="mb-4 mt-5">
@@ -258,35 +294,97 @@ const CreateProduct = () => {
         </div>
 
         {/* Short Description */}
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">
-            Short Description
-          </label>
-          <textarea
-            name="shortDescription"
-            className="w-full border border-gray-300 rounded-lg px-4 py-2"
-            placeholder="Share important points"
-            maxLength={120}
-            rows="2"
-            required
-            defaultValue={initialData?.shortDescription || ""}
-          />
+        <div className="flex gap-5 mb-4">
+          <div className="w-2/3">
+            <label className="block text-gray-700 font-medium mb-2">
+              Short Description
+            </label>
+            <textarea
+              name="shortDescription"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2"
+              placeholder="Share important points"
+              maxLength={120}
+              rows="2"
+              required
+              defaultValue={initialData?.shortDescription || ""}
+            />
+          </div>
+          <div className="w-1/3">
+            <label className="block text-gray-700 font-medium mb-2">
+              Product is physical or file
+            </label>
+            <div className="mt-5 gap-5 flex ">
+              <p
+                className={` p-2 rounded-md cursor-pointer ${
+                  isFile ? "" : "bg-cyan-100"
+                }`}
+                onClick={() => {
+                  setIsFile(false);
+                }}
+              >
+                Physical
+              </p>
+              <p
+                className={` p-2 rounded-md cursor-pointer ${
+                  isFile ? "bg-cyan-100" : ""
+                }`}
+                onClick={() => {
+                  setIsFile(true);
+                }}
+              >
+                File
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Description */}
-        <div className="mb-4">
+        <div className="mb-4 ">
           <label className="block text-gray-700 font-medium mb-2">
             Description
           </label>
-          <textarea
-            name="description"
-            className="w-full border border-gray-300 rounded-lg px-4 py-2"
-            placeholder="Describe your item"
-            maxLength={1000}
-            rows="4"
-            required
-            defaultValue={initialData?.description || ""}
-          />
+          <div className="flex gap-2 relative">
+            <textarea
+              name="description"
+              className="w-full border border-gray-300 inline-block rounded-lg px-4 py-2"
+              placeholder="Describe your item"
+              maxLength={1500}
+              rows="8"
+              required
+              defaultValue={initialData?.description || ""}
+            />
+            <button
+              className="bg-primary flex items-center border rounded-md px-3 py-2 text-sm text-white hover:bg-secondry absolute right-2 top-2 gap-2 disabled:opacity-60"
+              onClick={handleGenerateDescription}
+              disabled={spinnerGenerator}
+            >
+              {spinnerGenerator && (
+                <svg
+                  className="w-4 h-4 animate-spin text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+              )}
+              <span>
+                {spinnerGenerator ? "Generating..." : "Generate Description"}
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Tags */}
@@ -294,16 +392,21 @@ const CreateProduct = () => {
           <label className="block text-gray-700 font-medium mb-2">Tags</label>
           <CreatableSelect
             isMulti
-            options={tagsOption}
+            options={SkillsArray}
             className="basic-multi-select"
             classNamePrefix="select"
             value={tags.map((tag) => ({ value: tag, label: tag }))}
             onChange={(selectedOptions) => {
-              setTags(selectedOptions.map((option) => option.value));
+              if (!selectedOptions || selectedOptions.length <= 5) {
+                setTags(selectedOptions.map((option) => option.value));
+              }
             }}
-            onCreateOption={(inputValue) =>
-              setTags((prev) => [...prev, inputValue.toLowerCase()])
-            }
+            onCreateOption={(inputValue) => {
+              if (tags.length < 5) {
+                setTags((prev) => [...prev, inputValue.toLowerCase()]);
+              }
+            }}
+            readOnly={tags.length >= 5}
           />
           {formErrors.tags && (
             <p className="text-red-600 text-sm mt-1">{formErrors.tags}</p>

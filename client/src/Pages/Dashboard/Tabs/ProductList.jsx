@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "../../../baseURL/axios";
 import Toast from "../../../Symbols/Toast";
 import Loading from "../../../Symbols/Loading";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaEye } from "react-icons/fa";
 import DeleteModal from "../../../Symbols/DeleteModal";
+import { Link } from "react-router-dom";
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -16,7 +17,7 @@ const ProductList = () => {
       try {
         const response = await axios.get("/dashboard/getProduct");
         if (response.data.success) {
-          setProducts(response.data.products);
+          setProducts(response.data.products.reverse());
         } else {
           setToast({ status: "error", message: "Failed to fetch products" });
         }
@@ -59,7 +60,7 @@ const ProductList = () => {
     <div className="p-6">
       <Loading visible={loading} />
       <Toast status={toast.status} message={toast.message} />
-      <h3 className="text-2xl font-semibold mb-4">Your Products</h3>
+      <h3 className="text-xl font-medium mb-4">Product List</h3>
 
       <div className="rounded-lg border border-gray-200 overflow-hidden">
         <table className="min-w-full bg-white text-center">
@@ -94,9 +95,20 @@ const ProductList = () => {
                 <td className="py-4 px-4 text-gray-800 font-medium align-middle">
                   Rs.{product.price}
                 </td>
-                <td className="py-6 px-4 flex justify-center items-center gap-5 align-middle">
-                  <button onClick={() => handleEdit(product._id)}>
-                    <FaEdit className="text-primary text-2xl" />
+                <td className="py-6 px-4 flex justify-center items-center gap-4">
+                  <Link
+                    to={`/${product.username}/${product.title
+                      .toLowerCase()
+                      .replace(/ /g, "-")}?id=${product._id}`}
+                    className="transition-transform duration-200 transform hover:scale-110"
+                  >
+                    <FaEye className="text-gray-600 text-xl hover:text-gray-800" />
+                  </Link>
+                  <button
+                    onClick={() => handleEdit(product._id)}
+                    className="transition-all duration-200 hover:text-primary hover:scale-110"
+                  >
+                    <FaEdit className="text-primary text-xl" />
                   </button>
                   <DeleteModal handleDelete={() => handleDelete(product._id)} />
                 </td>

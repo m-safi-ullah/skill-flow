@@ -74,7 +74,6 @@ const BecomeASeller = () => {
     const formData = new FormData(e.target);
 
     setToast({ status: "", message: "" });
-    console.log(toast);
 
     const password = formData.get("password");
     const confirmPassword = formData.get("confirmPassword");
