@@ -7,6 +7,7 @@ export const GlobalProvider = ({ children }) => {
   const [authEmail, setAuthEmail] = useState("");
   const [authRole, setAuthRole] = useState("");
   const [authId, setAuthId] = useState("");
+  const [restricted, setRestricted] = useState(false);
 
   return (
     <GlobalContext.Provider
@@ -19,6 +20,8 @@ export const GlobalProvider = ({ children }) => {
         setAuthRole,
         authId,
         setAuthId,
+        restricted,
+        setRestricted,
       }}
     >
       {children}

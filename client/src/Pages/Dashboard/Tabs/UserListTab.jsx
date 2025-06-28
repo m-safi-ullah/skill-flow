@@ -1,72 +1,112 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../../baseURL/axios";
 import { useLocation } from "react-router-dom";
+import ConfirmModal from "../../../Symbols/ConfirmModal";
+import Toast from "./../../../Symbols/Toast";
+import Loading from "../../../Symbols/Loading";
 
 const UsersListTab = ({ list }) => {
   const location = useLocation();
   const path = location.pathname === `/${list}-list`;
   const [sellers, setSellers] = useState([]);
-  const handleDelete = (id) => {
-    console.log(`Delete seller with ID: ${id}`);
+  const [toast, setToast] = useState({ status: "", message: "" });
+  const [loadVisibility, setLoadVisibility] = useState(false);
+  const [refresh, setRefresh] = useState(false);
+  const handleRestriction = (email) => {
+    setToast({ status: "", message: "" });
+    setLoadVisibility(true);
+    axios
+      .post("/auth/signIn", { email, list })
+      .then((res) => {
+        if (res.data.success) {
+          setRefresh(true);
+          setToast({
+            status: "success",
+            message: "Successfully update the status",
+          });
+        } else {
+          setToast({
+            status: "error",
+            message: "Failed to update the status",
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error restricting user:", error);
+      })
+      .finally(() => {
+        setLoadVisibility(false);
+      });
   };
 
   useEffect(() => {
     axios
-      .get("/dashboard/getUserList", { params: { list: list } })
+      .get("/dashboard/getUserList", {
+        params: { list: list, restricted: false },
+      })
       .then((res) => {
         setSellers(res.data.userList);
       });
-  }, [path]);
+  }, [path, refresh]);
 
   return (
     <div className="overflow-x-auto p-5">
-      <h3 className="text-xl font-medium mb-3">
-        {list.charAt(0).toUpperCase() + list.slice(1)} List
-      </h3>
-      <table className="min-w-full bg-white rounded-lg">
-        <thead className="bg-gray-100">
-          <tr className="text-left text-gray-600 uppercase text-sm font-semibold">
-            <th className="p-3">ID</th>
-            <th className="p-3">Name</th>
-            <th className="p-3">Email</th>
-            <th className="p-3 text-center">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sellers.map((seller, key) => (
-            <tr key={key} className="border-b border-gray-200 hover:bg-gray-50">
-              <td className="p-3">{key + 1}</td>
-              <td className="p-3">{seller.name}</td>
-              <td className="p-3">{seller.email}</td>
-              <td className="p-3 text-center">
-                <button
-                  onClick={() => handleDelete(seller.id)}
-                  className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full"
-                >
-                  <svg
-                    className="h-5 w-5"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    strokeWidth="2"
-                    stroke="currentColor"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+      <Toast status={toast.status} message={toast.message} />
+      {loadVisibility ? (
+        <Loading visible={loadVisibility} />
+      ) : (
+        <>
+          <h3 className="text-xl font-medium mb-3">
+            {list.charAt(0).toUpperCase() + list.slice(1)} List
+          </h3>
+          <table className="min-w-full bg-white rounded-lg">
+            <thead className="bg-gray-100">
+              <tr className="text-left text-gray-600 uppercase text-sm font-semibold">
+                <th className="p-3">ID</th>
+                <th className="p-3">Name</th>
+                <th className="p-3">Email</th>
+                {list !== "admin" && (
+                  <th className="p-3 text-center">Action</th>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {sellers.length == 0 ? (
+                <tr>
+                  <td
+                    colSpan={list !== "admin" ? 4 : 3}
+                    className="p-3 text-center text-gray-500"
                   >
-                    <path stroke="none" d="M0 0h24v24H0z" />
-                    <line x1="4" y1="7" x2="20" y2="7" />
-                    <line x1="10" y1="11" x2="10" y2="17" />
-                    <line x1="14" y1="11" x2="14" y2="17" />
-                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                  </svg>
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                    No {list} Found
+                  </td>
+                </tr>
+              ) : (
+                sellers.map((seller, key) => (
+                  <tr
+                    key={key}
+                    className="border-b border-gray-200 hover:bg-gray-50"
+                  >
+                    <td className="p-3">{key + 1}</td>
+                    <td className="p-3">{seller.name}</td>
+                    <td className="p-3">{seller.email}</td>
+                    {list !== "admin" && (
+                      <td className="p-3 text-center">
+                        <ConfirmModal
+                          bg={
+                            seller.restriction ? "bg-green-500" : "bg-red-500"
+                          }
+                          text={seller.restriction ? "Unrestrict" : "Restrict"}
+                          handleDelete={() => handleRestriction(seller.email)}
+                        />
+                      </td>
+                    )}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </>
+      )}
     </div>
   );
 };

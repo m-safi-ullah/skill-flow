@@ -30,7 +30,7 @@ const SkillTest = () => {
           if (profile.test?.voilation == true) {
             setTerminated(true);
             setLoading(false);
-            setScore("");
+            setScore(profile.test.score);
             return;
           }
 
@@ -66,6 +66,7 @@ const SkillTest = () => {
   const handleStart = async () => {
     setStarted(true);
     setTestGenerating(true);
+    setScore(null);
 
     try {
       const res = await generateEnglishTest();
@@ -222,7 +223,7 @@ const SkillTest = () => {
           class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
           role="alert"
         >
-          Test terminated due to violation. You cannot retake it after 7 Days.
+          Test terminated due to violation. You can retake it after 7 Days.
         </div>
       ) : blocked ? (
         <div

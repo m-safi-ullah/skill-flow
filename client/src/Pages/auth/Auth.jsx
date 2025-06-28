@@ -41,7 +41,7 @@ import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
   const [cookie, , removeCookie] = useCookies(["token"]);
-  const { setAuthEmail, setAuthRole, setAuthName, setAuthId } =
+  const { setAuthEmail, setAuthRole, setAuthName, setAuthId, setRestricted } =
     useContext(GlobalContext);
   const navigate = useNavigate();
 
@@ -54,6 +54,7 @@ const Auth = () => {
           setAuthEmail(decoded.email);
           setAuthRole(decoded.role);
           setAuthId(decoded.id);
+          setRestricted(decoded.restricted || false);
 
           const response = await axios.post(
             "/auth/verify-token",

@@ -15,7 +15,7 @@ function Header() {
   const handleLogout = () => {
     removeCookie("token", "");
     setAuthName("");
-    window.location.href = "/";
+    navigate("/");
   };
 
   const handleSearch = () => {
@@ -26,7 +26,7 @@ function Header() {
   return (
     <header>
       <nav className="bg-white shadow-sm header-main">
-        <div className="container mx-auto px-4 flex items-center justify-between py-4">
+        <div className="mx-auto px-4 flex items-center justify-between py-4">
           <div>
             <Link to="/">
               <img src={logo} alt="Logo" className="w-40" />

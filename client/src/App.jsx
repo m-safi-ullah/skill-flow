@@ -19,19 +19,20 @@ import Portfolio from "./Pages/SellerPortfolio/Portfolio";
 import PageNotFound from "./Pages/MainPages/PageNotFound";
 import SearchProducts from "./Pages/Search/SearchProducts";
 import CometChat from "./Pages/Chat/CometChat";
+import ScrollToTop from "./Symbols/ScrollToTop";
 
 export default function App() {
   return (
     <>
       <Header />
       <Auth />
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about-us" element={<About />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/service" element={<Service />} />
         <Route path="/search" element={<SearchProducts />} />
-
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/become-a-seller" element={<BecomeASeller />} />
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="/seller/:name" element={<SellerProfile />} />
         <Route path="/buyer/:name" element={<BuyerProfile />} />
         <Route path="/:username/:title" element={<Product />} />
+        <Route path="/:username/portfolio" element={<Portfolio />} />
         <Route path="/:username/portfolio/:id" element={<Portfolio />} />
         <Route path="/chat" element={<CometChat />} />
 

@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import signin from "../../images/singIn.png";
 import { Link } from "react-router";
 import Toast from "../../Symbols/Toast";
 import axios from "../../baseURL/axios";
 import "../../css/Auth.css";
 import { useCookies } from "react-cookie";
+import { GlobalContext } from "../context/context";
 
 const SignIn = () => {
   const [toast, setToast] = useState({ status: "", message: "" });
   const [btnLoader, setbtnLoader] = useState(false);
   const [portal, setPortal] = useState("seller");
   const [cookies] = useCookies(["token"]);
+  const { setRestricted } = useContext(GlobalContext);
 
   useEffect(() => {
     if (cookies.token) {
@@ -21,20 +23,19 @@ const SignIn = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-
     setToast({ status: "", message: "" });
     setbtnLoader(true);
     formData.append("role", portal);
-
     axios
       .post("/auth/signIn", formData)
       .then((response) => {
         const params = new URLSearchParams(window.location.search);
         const redirectUrl = params.get("redirectUrl");
         if (response.data.success) {
-          if (redirectUrl)
+          if (redirectUrl) {
+            setRestricted(response.data.restricted);
             window.location.href = decodeURIComponent(redirectUrl);
-          else window.location.href = "/dashboard";
+          } else window.location.href = "/dashboard";
         } else {
           setbtnLoader(false);
           setToast({

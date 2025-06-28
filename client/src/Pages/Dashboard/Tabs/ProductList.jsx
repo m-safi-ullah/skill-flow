@@ -4,9 +4,10 @@ import Toast from "../../../Symbols/Toast";
 import Loading from "../../../Symbols/Loading";
 import { FaEdit, FaEye } from "react-icons/fa";
 import DeleteModal from "../../../Symbols/DeleteModal";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const ProductList = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [toast, setToast] = useState({ status: "", message: "" });
   const [loading, setLoading] = useState(false);
@@ -53,7 +54,7 @@ const ProductList = () => {
   };
 
   const handleEdit = (id) => {
-    window.location.href = `/dashboard?tab=create-product&id=${id}`;
+    navigate(`/dashboard?tab=create-product&id=${id}`);
   };
 
   return (

@@ -15,6 +15,7 @@ import {
   updatePortfolio,
   deletePortfolio,
   updateUsername,
+  deleteAccount,
 } from "../Controllers/dashboard.js";
 
 import { test } from "../Controllers/test.js";
@@ -93,5 +94,7 @@ router.patch(
 router.delete("/deletePortfolio", deletePortfolio);
 
 router.post("/test", test);
+
+router.delete("/delete-account", deleteAccount);
 
 export default router;

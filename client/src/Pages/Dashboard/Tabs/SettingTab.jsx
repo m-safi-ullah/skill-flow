@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import axios from "../../../baseURL/axios";
 import Toast from "../../../Symbols/Toast";
+import ConfirmModal from "../../../Symbols/ConfirmModal";
+import { GlobalContext } from "../../context/context";
 
 const SettingTab = () => {
   const [toast, setToast] = useState({ status: "", message: "" });
@@ -8,6 +10,7 @@ const SettingTab = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const { authRole } = useContext(GlobalContext);
   const [btnLoader, setBtnLoader] = useState(false);
 
   // Updated Password validation function
@@ -76,7 +79,28 @@ const SettingTab = () => {
       setBtnLoader(false);
     }
   };
-
+  const handleDeleteAccount = () => {
+    setToast({ status: "", message: "" });
+    axios
+      .delete("/dashboard/delete-account")
+      .then((res) => {
+        if (res.data.success) {
+          setToast({
+            status: "success",
+            message: "Account deleted successfully.",
+          });
+        } else {
+          setToast({ status: "error", message: res.data.message });
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting account:", error);
+        setToast({
+          status: "error",
+          message: "Failed to delete account. Please try again.",
+        });
+      });
+  };
   return (
     <div className="p-4 px-10">
       <Toast status={toast.status} message={toast.message} />
@@ -146,23 +170,28 @@ const SettingTab = () => {
             </button>
           </form>
         </div>
-        <div className="w-1/2 pl-10">
-          <h3 className="text-xl text-center font-medium mb-3 text-red-600">
-            Danger Zone
-          </h3>
-          <div className="p-4 border border-red-200 rounded-lg">
-            <div className="mb-4">
-              <h4 className="text-lg font-medium mb-2">Deactivate Account</h4>
-              <p className="text-gray-600 mb-4">
-                This will permanently delete your account and all associated
-                data. This action is irreversible.
-              </p>
+        {authRole !== "admin" && (
+          <div className="w-1/2 pl-10">
+            <h3 className="text-xl text-center font-medium mb-3 text-red-600">
+              Danger Zone
+            </h3>
+            <div className="p-4 border border-red-200 rounded-lg">
+              <div className="mb-4">
+                <h4 className="text-lg font-medium mb-2">Deactivate Account</h4>
+                <p className="text-gray-600 mb-4">
+                  This will permanently delete your account and all associated
+                  data. This action is irreversible.
+                </p>
+              </div>
+
+              <ConfirmModal
+                bg="bg-red-500"
+                text="Deactivate Account"
+                handleDelete={handleDeleteAccount}
+              />
             </div>
-            <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors">
-              Deactivate Account
-            </button>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -18,7 +18,6 @@ const Toast = ({ status, message }) => {
         newestOnTop={false}
         closeOnClick={true}
         rtl={false}
-        // pauseOnFocusLoss
         draggable
         pauseOnHover
         theme="light"

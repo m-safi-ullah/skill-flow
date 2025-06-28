@@ -144,14 +144,12 @@ export const updateUsername = async (req, res) => {
     const existingUser = await ProfileModel.findOne({
       username,
       email: { $ne: normalizedEmail },
-      // role: { $ne: role },
     });
 
     if (existingUser) {
       return res.status(200).json({
         success: false,
         message: "Username not avaialble.",
-        profile: user,
       });
     }
 
@@ -223,11 +221,15 @@ export const getUserList = async (req, res) => {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    const { list } = req.query;
-    const users = await AuthModel.find({ role: list });
+    const { list, restricted } = req.query;
+    let users;
+
+    users = await AuthModel.find({ role: list, restriction: restricted });
+
     const userList = users.map((user) => ({
       name: user.name,
       email: user.email,
+      restriction: user.restriction,
     }));
 
     return res.status(200).json({ success: true, userList });
@@ -525,7 +527,12 @@ export const getPortfolio = async (req, res) => {
       }
 
       const { email } = decoded;
+      const rec = await ProfileModel.findOne({ email });
       products = await Portfolios.find({ email });
+      products = products.map((product) => ({
+        ...product.toObject(),
+        username: rec.username || "",
+      }));
     }
 
     // Return the filtered portfolio
@@ -596,6 +603,27 @@ export const deletePortfolio = async (req, res) => {
       .json({ success: true, message: "Porfolio Deleted Successfully" });
   } catch (error) {
     console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error." });
+  }
+};
+
+export const deleteAccount = async (req, res) => {
+  const { isValid, decoded } = verifyToken(req, res);
+  if (!isValid) {
+    return res.status(401).json({ success: false, message: "Unauthorized" });
+  }
+  const { email, role } = decoded;
+  try {
+    await AuthModel.findOneAndDelete({ email, role });
+    await ProfileModel.findOneAndDelete({ email, role });
+    await Products.findOneAndDelete({ email, role });
+    await Portfolios.findOneAndDelete({ email });
+    return res
+      .status(200)
+      .json({ success: true, message: "Account deleted successfully." });
+  } catch (error) {
     return res
       .status(500)
       .json({ success: false, message: "Internal server error." });

@@ -31,8 +31,8 @@ const Profile = ({ portal }) => {
             axios.get("/dashboard/getPortfolio", { params: { name } }),
           ]);
 
-          setProducts(productsRes.data.products || []);
-          setPortfolio(portfolioRes.data.products || []);
+          setProducts(productsRes.data.products.reverse() || []);
+          setPortfolio(portfolioRes.data.products.reverse() || []);
         }
       } catch (err) {
         console.error("Error fetching profile data:", err);

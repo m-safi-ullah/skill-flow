@@ -6,8 +6,10 @@ import CreatableSelect from "react-select/creatable";
 import Toast from "../../../Symbols/Toast";
 import Loading from "../../../Symbols/Loading";
 import { SkillsArray } from "../../../Symbols/SkillsArray";
+import { useNavigate } from "react-router-dom";
 
 const ProfileForm = () => {
+  const navigate = useNavigate();
   const [skills, setSkills] = useState([]);
   const [profilePic, setProfilePic] = useState("");
   const [toast, setToast] = useState({ status: "", message: "" });
@@ -53,7 +55,8 @@ const ProfileForm = () => {
         .then((res) => {
           if (res.data.success) {
             setLoading(false);
-            window.location.href = "dashboard?tab=dashboard";
+            navigate("?tab=dashboard");
+
             // window.scrollTo({
             //   top: 0,
             //   behavior: "smooth",

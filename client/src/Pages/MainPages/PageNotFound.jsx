@@ -38,10 +38,10 @@ const NotFound = () => {
 
       {/* Button */}
       <button
-        onClick={() => navigate("/")}
+        onClick={() => window.history.back()}
         className="mt-8 px-6 py-3 bg-blue-600 hover:bg-blue-700 transition text-white text-sm font-medium rounded-md shadow-md"
       >
-        Go Home
+        Go Back
       </button>
     </div>
   );

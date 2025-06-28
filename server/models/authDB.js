@@ -8,6 +8,10 @@ const AuthSchema = new mongoose.Schema({
   cnic: String,
   cnicImage: String,
   verificationCode: String,
+  restriction: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const AuthModel = mongoose.model("users", AuthSchema);

@@ -1,4 +1,3 @@
-import AuthModel from "../models/authDB.js";
 import { verifyToken } from "../Controllers/generateToken.js";
 import Order from "../models/Order.js";
 import Profile from "../models/Profile.js";
@@ -9,7 +8,6 @@ export const placeOrder = async (req, res) => {
     if (!isValid) return;
 
     const { email } = decoded;
-
     const {
       id,
       title,
@@ -21,10 +19,11 @@ export const placeOrder = async (req, res) => {
       city,
       postalCode,
       additionalRequirements,
+      quantity,
+      paymentMethod,
     } = req.body;
 
     const seller = await Profile.findOne({ username });
-
     if (!seller) {
       return res
         .status(404)
@@ -41,9 +40,12 @@ export const placeOrder = async (req, res) => {
     const orderData = {
       title,
       price,
+      quantity,
+      total: price * quantity,
       productId: id,
       seller: seller.email,
       buyer: email,
+      paymentMethod,
     };
 
     if (isFile === "true" || isFile === true) {
@@ -65,8 +67,9 @@ export const placeOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Order placement error:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error." });
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
   }
 };

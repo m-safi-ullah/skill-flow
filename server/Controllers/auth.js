@@ -207,11 +207,26 @@ export const verifyOtp = async (req, res) => {
 };
 
 export const signIn = async (req, res) => {
-  const { email, password, role } = req.body;
+  // For user restriction / unrestriction
+  const { isValid, decoded } = verifyToken(req, res);
+  if (isValid && decoded.role === "admin") {
+    const { email, list } = req.body;
+    const user = await AuthModel.findOne({ email, role: list });
+    if (user) {
+      user.restriction = !user.restriction;
+    }
+    await user.save();
+    return res.status(200).json({
+      success: true,
+      message: `User ${
+        user.restriction ? "restricted" : "unrestricted"
+      } successfully.`,
+    });
+  }
 
+  const { email, password, role } = req.body;
   try {
     const normalizedEmail = email.trim().toLowerCase();
-
     const user = await AuthModel.findOne({ email: normalizedEmail, role });
     if (!user) {
       return res.status(200).json({
@@ -228,10 +243,10 @@ export const signIn = async (req, res) => {
       });
     }
     generateToken(user, res);
-
     res.status(200).json({
       success: true,
       message: "Login successful",
+      restricted: user.restriction,
     });
   } catch (error) {
     res.status(500).json({

@@ -8,7 +8,7 @@ export default function ProductGrid() {
   const [productData, setProductData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalProducts, setTotalProducts] = useState(0);
-  const [priceFilter, setPriceFilter] = useState("");
+  const [priceFilter, setPriceFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,8 +32,8 @@ export default function ProductGrid() {
         params: {
           page: currentPage,
           limit: 10,
-          priceRange: priceFilter || "all",
-          search: debouncedSearch || "",
+          priceRange: priceFilter,
+          search: debouncedSearch,
         },
       });
       const { success, products, total, totalPages } = res.data;
@@ -62,9 +62,37 @@ export default function ProductGrid() {
       <ToastContainer autoClose={1000} transition={Slide} hideProgressBar />
       <section className="py-10">
         <div className="container mx-auto px-10">
-          <h2 className="text-xl font-semibold mb-4">
-            Results for: <span className="text-blue-600">"{searchQuery}"</span>
-          </h2>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+            {searchQuery ? (
+              <h2 className="text-xl font-semibold mb-2 md:mb-0">
+                Results for:{" "}
+                <span className="text-blue-600">"{searchQuery}"</span>
+              </h2>
+            ) : (
+              <h2 className="text-xl font-semibold mb-2 md:mb-0">
+                Search Results
+              </h2>
+            )}
+            <select
+              value={priceFilter}
+              onChange={(e) => setPriceFilter(e.target.value)}
+              className="border rounded px-3 py-1 text-sm"
+            >
+              <option value="all">All Prices</option>
+              <option value="0-1000">Below Rs. 1000</option>
+              <option value="1000-5000">Rs. 1000 - Rs. 5000</option>
+              <option value="5000-10000">Rs. 5000 - Rs. 10000</option>
+              <option value="10000+">Above Rs. 10000</option>
+            </select>
+          </div>
+
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search products..."
+            className="w-full border px-3 py-2 rounded mb-6"
+          />
 
           {loading ? (
             <div className="flex justify-center items-center h-60">
@@ -75,8 +103,6 @@ export default function ProductGrid() {
               <p className="text-sm text-gray-500 mb-6">
                 Showing {productData.length} of {totalProducts} products
               </p>
-
-              {/* 👉 Custom Styled Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {productData.map((product) => (
                   <Link
@@ -85,7 +111,7 @@ export default function ProductGrid() {
                       .replace(/ /g, "-")}?id=${product._id}`}
                     key={product._id}
                   >
-                    <div className="p-4">
+                    <div className="p-4 border rounded hover:shadow-lg transition">
                       {product.image && (
                         <img
                           src={`http://localhost:4400/${
@@ -95,10 +121,13 @@ export default function ProductGrid() {
                           className="w-full h-48 object-cover rounded-md mb-2"
                         />
                       )}
-
-                      <h4 className="text-md">{product.title}</h4>
-
-                      <div className="flex gap-1 mt-2 items-center">
+                      <h4 className="text-md font-medium truncate">
+                        {product.title}
+                      </h4>
+                      <p className="mt-1 text-sm text-gray-500">
+                        Rs. {product.price}
+                      </p>
+                      <div className="flex items-center gap-1 mt-2">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="currentColor"
@@ -111,8 +140,6 @@ export default function ProductGrid() {
                         </svg>
                         <span className="text-sm font-medium">5.0 (1)</span>
                       </div>
-
-                      <p className="mt-2 font-semibold">Rs. {product.price}</p>
                     </div>
                   </Link>
                 ))}

@@ -8,6 +8,7 @@ export const generateToken = (user, res) => {
       email: user.email,
       role: user.role,
       id: user._id,
+      restricted: user.restriction || false,
     },
     secret
     // { expiresIn: "1h" }

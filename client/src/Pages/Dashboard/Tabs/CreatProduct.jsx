@@ -6,8 +6,12 @@ import Loading from "../../../Symbols/Loading";
 import { FaTrash } from "react-icons/fa";
 import { SkillsArray } from "../../../Symbols/SkillsArray";
 import GemeniProductDescription from "../../utils/GemeniProductDescription";
+import { Editor } from "@tinymce/tinymce-react";
+import { marked } from "marked";
+import { useNavigate } from "react-router-dom";
 
 const CreateProduct = () => {
+  const navigate = useNavigate();
   const [tags, setTags] = useState([]);
   const [toast, setToast] = useState({ status: "", message: "" });
   const [loading, setLoading] = useState(false);
@@ -16,6 +20,7 @@ const CreateProduct = () => {
   const [deletedServerImages, setDeletedServerImages] = useState([]);
   const [spinnerGenerator, setSpinnerGenerator] = useState(false);
   const [isFile, setIsFile] = useState(false);
+  const [description, setDescription] = useState("");
 
   const [images, setImages] = useState(
     Array(4).fill({ file: null, preview: "" })
@@ -45,6 +50,7 @@ const CreateProduct = () => {
               }
             });
             setImages(productImages);
+            setDescription(product.description || "");
           }
         } catch (error) {
           setToast({
@@ -121,6 +127,7 @@ const CreateProduct = () => {
 
     const formData = new FormData(e.target);
     formData.append("tags", JSON.stringify(tags));
+    formData.append("description", description);
     formData.append("isFile", isFile);
 
     images.forEach((imageObj) => {
@@ -151,7 +158,7 @@ const CreateProduct = () => {
       });
 
       if (response.data.success) {
-        window.location.href = "/dashboard?tab=product-list";
+        navigate("/dashboard?tab=product-list");
       }
     } catch (error) {
       setToast({
@@ -171,10 +178,7 @@ const CreateProduct = () => {
 
     const form = document.getElementById("form");
     const titleInput = form.elements["title"];
-    const descriptionInput = form.elements["description"];
-
-    const title = titleInput.value;
-    descriptionInput.value = "";
+    const title = titleInput?.value;
 
     if (!title) {
       setSpinnerGenerator(false);
@@ -185,15 +189,19 @@ const CreateProduct = () => {
       return;
     }
 
-    const { success, description } = await GemeniProductDescription(title);
+    const { success, description: generatedDescription } =
+      await GemeniProductDescription(title);
+
     if (success) {
-      descriptionInput.value = description;
+      const html = marked.parse(generatedDescription);
+      setDescription(html);
     } else {
       setToast({
         status: "error",
         message: "Failed to generate description.",
       });
     }
+
     setSpinnerGenerator(false);
   };
 
@@ -343,8 +351,9 @@ const CreateProduct = () => {
           <label className="block text-gray-700 font-medium mb-2">
             Description
           </label>
+
           <div className="flex gap-2 relative">
-            <textarea
+            {/* <textarea
               name="description"
               className="w-full border border-gray-300 inline-block rounded-lg px-4 py-2"
               placeholder="Describe your item"
@@ -352,9 +361,32 @@ const CreateProduct = () => {
               rows="8"
               required
               defaultValue={initialData?.description || ""}
+            /> */}
+
+            <Editor
+              apiKey="wzc0onj4cmy60vu6ruloh32bfhw7mt528igrr8trewn2ss4m"
+              value={description}
+              onEditorChange={(newValue) => setDescription(newValue)}
+              init={{
+                height: 400,
+                width: "100%",
+                menubar: false,
+                icons: "default",
+                plugins: [
+                  "advlist autolink lists link charmap preview anchor",
+                  "searchreplace visualblocks code fullscreen",
+                  "insertdatetime media table paste help wordcount",
+                  "code",
+                ],
+                toolbar:
+                  "undo redo | blocks fontsize | code | bold italic underline strikethrough",
+                content_style:
+                  "body { font-family:Helvetica,Arial,sans-serif; font-size:17px }",
+              }}
             />
+
             <button
-              className="bg-primary flex items-center border rounded-md px-3 py-2 text-sm text-white hover:bg-secondry absolute right-2 top-2 gap-2 disabled:opacity-60"
+              className="z-10 flex items-center border rounded-md px-3 py-2 text-sm bg-primary hover:bg-secondry text-white absolute right-2 top-2 gap-2 disabled:opacity-60"
               onClick={handleGenerateDescription}
               disabled={spinnerGenerator}
             >

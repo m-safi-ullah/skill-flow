@@ -3,9 +3,10 @@ import CreatableSelect from "react-select/creatable";
 import axios from "../../../baseURL/axios";
 import Toast from "../../../Symbols/Toast";
 import Loading from "../../../Symbols/Loading";
-import { FaTrash, FaPen } from "react-icons/fa";
+import { FaTrash, FaPen, FaEye } from "react-icons/fa";
 import { SkillsArray } from "../../../Symbols/SkillsArray";
 import DeleteModal from "../../../Symbols/DeleteModal";
+import { Link } from "react-router-dom";
 
 const PortfolioTab = () => {
   const [tags, setTags] = useState([]);
@@ -333,13 +334,18 @@ const PortfolioTab = () => {
                   className="bg-white rounded-lg border p-4 transition-shadow"
                 >
                   <div className="relative">
+                    <Link to={`/${product.username}/portfolio/${product._id}`}>
+                      <button className="text-sm absolute top-0 right-20 bg-gray-400  rounded-full p-[0.5rem] mt-2">
+                        <FaEye className="text-white text-md" />
+                      </button>
+                    </Link>
                     <button
-                      className="text-sm absolute top-0 right-12 bg-primary  rounded-full p-[0.5rem] mt-2"
+                      className="text-sm absolute top-0 right-11 bg-primary  rounded-full p-[0.5rem] mt-2"
                       onClick={() => handleUpdateItem(product)}
                     >
                       <FaPen className="text-white text-md" />
                     </button>
-                    <button className="text-sm absolute top-0 right-1 p-2">
+                    <button className="text-sm absolute top-0 right-0 p-2">
                       <DeleteModal
                         handleDelete={() => handleDeleteItem(product._id)}
                       />
