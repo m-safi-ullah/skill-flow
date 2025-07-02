@@ -184,7 +184,7 @@ const Product = () => {
             />
             <div className="bg-white rounded-md mt-4 mb-12">
               <h1 className="text-2xl font-semibold mb-4">{product.title}</h1>
-              <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center gap-4 mb-5">
                 <div>
                   <img
                     src={

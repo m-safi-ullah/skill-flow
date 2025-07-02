@@ -10,6 +10,7 @@ import Seller from "./Seller.jsx";
 import SettingTab from "./Tabs/SettingTab.jsx";
 import Loading from "../../Symbols/Loading.jsx";
 import RestrcitedTab from "./Tabs/RestrictedTab.jsx";
+import OrdersTab from "./Tabs/OrdersTab.jsx";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -593,6 +594,59 @@ const Dashboard = () => {
                     </li>
                   </>
                 )}
+                {(authRole === "buyer" || authRole === "seller") && (
+                  <>
+                    <li>
+                      <Link to="/dashboard?tab=orders">
+                        <button
+                          className={`w-full text-left py-3 px-3 flex group items-center rounded-lg transition-colors duration-200 ${
+                            activeSection === "orders" ? "active" : ""
+                          }`}
+                          onClick={() => handleSectionChange("orders")}
+                        >
+                          <svg
+                            className="shrink-0 w-5 h-5 mr-3 text-gray-500 transition duration-75 group-hover:text-gray-900"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            strokeWidth="2"
+                            stroke="currentColor"
+                            fill="none"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <rect
+                              x="4"
+                              y="4"
+                              width="16"
+                              height="16"
+                              rx="4"
+                              stroke="currentColor"
+                              fill="none"
+                            />
+                            <line
+                              x1="12"
+                              y1="8"
+                              x2="12"
+                              y2="16"
+                              stroke="currentColor"
+                            />
+                            <line
+                              x1="8"
+                              y1="12"
+                              x2="16"
+                              y2="12"
+                              stroke="currentColor"
+                            />
+                          </svg>
+
+                          <span>Orders</span>
+                        </button>
+                      </Link>
+                    </li>
+                  </>
+                )}
                 <li>
                   <Link to="/dashboard?tab=settings">
                     <button
@@ -629,6 +683,9 @@ const Dashboard = () => {
               {activeSection === "settings" && <SettingTab />}
               {authRole === "admin" && <Admin activeSection={activeSection} />}
               {authRole === "buyer" && <Buyer activeSection={activeSection} />}
+              {(authRole === "buyer" || authRole === "seller") &&
+                activeSection === "orders" && <OrdersTab />}
+
               {authRole === "seller" && (
                 <Seller activeSection={activeSection} />
               )}

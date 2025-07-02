@@ -208,7 +208,7 @@ const ProfileForm = () => {
               }
               onChange={(selectedOptions) => {
                 if (!selectedOptions || selectedOptions.length <= 5) {
-                  setTags(selectedOptions.map((option) => option.value));
+                  setSkills(selectedOptions.map((option) => option.value));
                 }
               }}
               onCreateOption={(inputValue) => {

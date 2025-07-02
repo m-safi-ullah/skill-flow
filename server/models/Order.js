@@ -12,6 +12,8 @@ const OrderSchema = new mongoose.Schema({
   postalCode: { type: String },
   additionalRequirements: { type: String },
   createdAt: { type: Date, default: Date.now },
+  paymentStatus: { type: String, default: "pending" },
+  deliveryStatus: { type: String, default: "pending" },
 });
 
 const Order = mongoose.model("orders", OrderSchema);

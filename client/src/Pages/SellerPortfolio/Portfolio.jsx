@@ -1,19 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "../../baseURL/axios";
 import Loading from "../../Symbols/Loading";
 import Toast from "../../Symbols/Toast";
 import defaultProfilePic from "../../images/defaultProfilePic.png";
+import { GlobalContext } from "../context/context";
+import { FaPen } from "react-icons/fa";
+import BreadCrumbs from "../../Symbols/BreadCrumbs";
 
 const PortfolioPage = () => {
   const { username, id } = useParams();
   const navigate = useNavigate();
-
+  const { authEmail, authRole } = useContext(GlobalContext);
   const [portfolio, setPortfolio] = useState([]);
   const [profile, setProfile] = useState({});
   const [selectedItem, setSelectedItem] = useState(null);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ status: "", message: "" });
+  const portal = "seller";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -65,68 +69,86 @@ const PortfolioPage = () => {
   };
 
   return (
-    <div className="px-8 py-12 min-h-screen">
+    <div className="px-8 py-10 min-h-screen">
       <Toast status={toast.status} message={toast.message} />
       <Loading visible={loading} />
-
+      <div className="m-4 mt-0 mb-8">
+        <BreadCrumbs
+          link2={`/${portal}/${username}`}
+          name2={username[0].toUpperCase() + username.slice(1)}
+          link3={`/${username}/portfolio`}
+          name3="Portfolio"
+        />
+      </div>
       {/* Profile Section */}
       {profile && (
-        <div className="flex flex-col md:flex-row md:items-center gap-6 mb-10">
-          <img
-            src={
-              profile.profilePic
-                ? `http://localhost:4400/${profile.profilePic.replace(
-                    "\\",
-                    "/"
-                  )}`
-                : defaultProfilePic
-            }
-            alt="Profile"
-            className="w-28 h-28 rounded-full object-cover border"
-          />
-          <div>
-            <h1 className="text-2xl font-semibold">{profile.name}</h1>
-            <p className="text-gray-600">@{profile?.username}</p>
-            <p className="text-sm text-gray-600 mt-2 mb-1 gap-1 flex items-center">
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m0-2a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2V6z"
-                />
-              </svg>
-              {profile.email}
-            </p>
-            <p className="text-sm text-gray-600 gap-1 flex items-center">
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-              {profile.address || "Address not added"}
-            </p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+          <div className="flex gap-6">
+            <img
+              src={
+                profile.profilePic
+                  ? `http://localhost:4400/${profile.profilePic.replace(
+                      "\\",
+                      "/"
+                    )}`
+                  : defaultProfilePic
+              }
+              alt="Profile"
+              className="w-28 h-28 rounded-full object-cover border"
+            />
+            <div>
+              <h1 className="text-2xl font-semibold">{profile.name}</h1>
+              <p className="text-gray-600">@{profile?.username}</p>
+              <p className="text-sm text-gray-600 mt-2 mb-1 gap-1 flex items-center">
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m0-2a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2V6z"
+                  />
+                </svg>
+                {profile.email}
+              </p>
+              <p className="text-sm text-gray-600 gap-1 flex items-center">
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                {profile.address || "Address not added"}
+              </p>
+            </div>
           </div>
+          {profile.email === authEmail && profile.role === authRole && (
+            <div className="self-start">
+              <Link to="/dashboard?tab=profile">
+                <button className="px-3 py-1 flex items-center gap-2 border border-green-600 hover:bg-green-600 transition-all hover:text-white rounded text-sm text-green-600">
+                  <FaPen className="text-xs" /> Edit
+                </button>
+              </Link>
+            </div>
+          )}
         </div>
       )}
 
@@ -158,7 +180,7 @@ const PortfolioPage = () => {
                 <p className="text-sm text-gray-500 my-2 line-clamp-2">
                   {item.description}
                 </p>
-                <p className="text-primary font-medium">Rs {item.price}</p>
+                {/* <p className="text-primary font-medium">Rs {item.price}</p> */}
               </div>
             ))}
           </div>
@@ -201,12 +223,12 @@ const PortfolioPage = () => {
                 <strong className="block text-gray-800">Price</strong>
                 {selectedItem.price}
               </div>
-              <div>
+              {/* <div>
                 <strong className="block text-gray-800">
                   Project duration
                 </strong>
                 {selectedItem.duration || "Not specified"}
-              </div>
+              </div> */}
             </div>
 
             <p className="text-gray-600 whitespace-pre-line mb-4 text-md">

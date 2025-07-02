@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import axios from "../../baseURL/axios";
 import PageNotFound from "../MainPages/PageNotFound.jsx";
 import Loading from "../../Symbols/Loading.jsx";
 import defaultProfilePic from "../../images/defaultProfilePic.png";
+import { GlobalContext } from "../context/context.jsx";
+import { FaPen } from "react-icons/fa";
 
 const Profile = ({ portal }) => {
   const location = useLocation();
@@ -12,6 +14,7 @@ const Profile = ({ portal }) => {
   const [portfolio, setPortfolio] = useState([]);
   const [found, setFound] = useState(true);
   const [loadVisibility, setLoadVisibility] = useState(false);
+  const { authEmail, authRole } = useContext(GlobalContext);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -137,60 +140,71 @@ const Profile = ({ portal }) => {
         <Loading visible={loadVisibility} />
       ) : (
         <>
-          <div className="flex flex-col md:flex-row md:items-center gap-6 ">
-            <img
-              src={
-                profile.profilePic
-                  ? `http://localhost:4400/${profile.profilePic}`
-                  : defaultProfilePic
-              }
-              alt="Profile"
-              className="w-28 h-28 rounded-full object-cover border"
-            />
-            <div>
-              <h1 className="text-2xl font-semibold">{profile.name}</h1>
-              <p className="text-gray-600">@{profile?.username}</p>
-              <p className="text-sm text-gray-600 flex items-center mt-2 gap-1 mb-1">
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m0-2a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2V6z"
-                  />
-                </svg>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 w-[70%]">
+            <div className="flex gap-6">
+              <img
+                src={
+                  profile.profilePic
+                    ? `http://localhost:4400/${profile.profilePic}`
+                    : defaultProfilePic
+                }
+                alt="Profile"
+                className="w-28 h-28 rounded-full object-cover border"
+              />
+              <div>
+                <h1 className="text-2xl font-semibold">{profile.name}</h1>
+                <p className="text-gray-600">@{profile?.username}</p>
+                <p className="text-sm text-gray-600 flex items-center mt-2 gap-1 mb-1">
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m0-2a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2V6z"
+                    />
+                  </svg>
 
-                {profile.email}
-              </p>
-              <p className="text-sm text-gray-600 flex items-center gap-1">
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-                {profile.address || "Address not added"}
-              </p>
+                  {profile.email}
+                </p>
+                <p className="text-sm text-gray-600 flex items-center gap-1">
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                  {profile.address || "Address not added"}
+                </p>
+              </div>
             </div>
+            {profile.email === authEmail && profile.role === authRole && (
+              <div className="self-start">
+                <Link to="/dashboard?tab=profile">
+                  <button className="px-3 py-1 flex items-center gap-2 border border-green-600 hover:bg-green-600 transition-all hover:text-white rounded text-sm text-green-600">
+                    <FaPen className="text-xs" /> Edit
+                  </button>
+                </Link>
+              </div>
+            )}
           </div>
           {/* About */}
           <section className="mt-8 border p-5 rounded-md w-[70%]">
