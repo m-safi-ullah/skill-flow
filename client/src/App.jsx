@@ -40,7 +40,7 @@ export default function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/seller/:name" element={<SellerProfile />} />
         <Route path="/buyer/:name" element={<BuyerProfile />} />
-        <Route path="/:username/:title" element={<Product />} />
+        <Route path="/:username/:id" element={<Product />} />
         <Route path="/:username/portfolio" element={<Portfolio />} />
         <Route path="/:username/portfolio/:id" element={<Portfolio />} />
         <Route path="/chat" element={<CometChat />} />

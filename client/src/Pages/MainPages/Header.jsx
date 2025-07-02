@@ -1,21 +1,27 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import logo from "../../images/logoDark.png";
 import "../../css/Header.css";
 import { GlobalContext } from "../context/context.jsx";
-import { useCookies } from "react-cookie";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "../../baseURL/axios.jsx";
+import Loading from "../../Symbols/Loading.jsx";
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { authName, setAuthName } = useContext(GlobalContext);
-  const [cookies, removeCookie] = useCookies(["token"]);
+  const [loading, setLoading] = useState(false);
+  const { authName, setAuthName, authEmail, setAuthEmail } =
+    useContext(GlobalContext);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    removeCookie("token", "");
-    setAuthName("");
-    navigate("/");
+    setLoading(true);
+    axios.post("/auth/logout").then((response) => {
+      if (response.success) {
+        setLoading(false);
+        window.location.href = "/sign-in";
+      }
+    });
   };
 
   const handleSearch = () => {
@@ -25,6 +31,7 @@ function Header() {
   };
   return (
     <header>
+      <Loading visible={loading} />
       <nav className="bg-white shadow-sm header-main">
         <div className="mx-auto px-4 flex items-center justify-between py-4">
           <div>
@@ -120,7 +127,7 @@ function Header() {
                 Services
               </Link>
 
-              {cookies.token ? (
+              {authEmail ? (
                 <>
                   <Link to="/chat">
                     <svg

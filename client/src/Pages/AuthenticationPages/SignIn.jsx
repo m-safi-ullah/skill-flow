@@ -4,21 +4,20 @@ import { Link } from "react-router";
 import Toast from "../../Symbols/Toast";
 import axios from "../../baseURL/axios";
 import "../../css/Auth.css";
-import { useCookies } from "react-cookie";
 import { GlobalContext } from "../context/context";
 
 const SignIn = () => {
   const [toast, setToast] = useState({ status: "", message: "" });
   const [btnLoader, setbtnLoader] = useState(false);
   const [portal, setPortal] = useState("seller");
-  const [cookies] = useCookies(["token"]);
   const { setRestricted } = useContext(GlobalContext);
 
   useEffect(() => {
-    if (cookies.token) {
+    const isAuthenticated = localStorage.getItem("authentication") === "true";
+    if (isAuthenticated) {
       window.location.href = "/dashboard";
     }
-  }, [cookies.token]);
+  }, [localStorage.getItem("authentication")]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -32,6 +31,7 @@ const SignIn = () => {
         const params = new URLSearchParams(window.location.search);
         const redirectUrl = params.get("redirectUrl");
         if (response.data.success) {
+          localStorage.setItem("authentication", "true");
           if (redirectUrl) {
             setRestricted(response.data.restricted);
             window.location.href = decodeURIComponent(redirectUrl);

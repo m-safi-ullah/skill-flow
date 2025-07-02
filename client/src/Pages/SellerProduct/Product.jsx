@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import axios from "../../baseURL/axios";
 import { FaStar } from "react-icons/fa";
 import dummyImage from "../../images/defaultProfilePic.png";
@@ -8,19 +8,27 @@ import Loading from "../../Symbols/Loading";
 import Toast from "../../Symbols/Toast";
 import { GlobalContext } from "../context/context.jsx";
 import BreadCrumbs from "../../Symbols/BreadCrumbs.jsx";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 
 const Product = () => {
   const { authRole, authEmail } = useContext(GlobalContext);
 
   const [quantity, setQuantity] = useState(1);
-  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [paymentMethod, setPaymentMethod] = useState("cash");
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState(null);
   const [profile, setProfile] = useState({});
   const [groupProducts, setGroupProducts] = useState([]);
   const [portfolio, setPortfolio] = useState([]);
+  // const { paymentStatus } = useParams();
   const location = useLocation();
-  const id = location?.search.split("=")[1];
+  const searchParams = new URLSearchParams(location.search);
+
+  const paymentStatus = searchParams.get("payment");
+  const id = searchParams.get("id");
+
   const username = location?.pathname.split("/")[1];
   const portal = "seller";
   const [placeOrder, setPlaceOrder] = useState(false);
@@ -58,11 +66,81 @@ const Product = () => {
     fetchProductData();
   }, [id, location.pathname, portal]);
 
+  useEffect(() => {
+    const paymentSuccess = paymentStatus === "success";
+
+    if (paymentSuccess) {
+      const storedOrder = localStorage.getItem("pendingOrder");
+
+      if (storedOrder) {
+        const orderData = JSON.parse(storedOrder);
+
+        axios
+          .post("/order/stripe-place-order", orderData)
+          .then((res) => {
+            if (res.data.success) {
+              setToast({ status: "success", message: "Payment successful!" });
+              localStorage.removeItem("pendingOrder");
+            } else {
+              setToast({ status: "error", message: res.data.message });
+            }
+          })
+          .catch((err) => {
+            console.error("Stripe order save failed:", err);
+            setToast({ status: "error", message: "Order failed to save." });
+          });
+      }
+    }
+  }, [location.search]);
+
   const handleOrderSubmit = async (e) => {
     e.preventDefault();
     setToast({ status: "", message: "" });
 
     const formData = new FormData(e.target);
+
+    if (paymentMethod === "stripe") {
+      const stripe = await loadStripe(stripeKey);
+      const orderData = {
+        title: product.title,
+        price: product.price,
+        productId: id,
+        seller: profile.email,
+        buyer: authEmail,
+        quantity,
+        isFile: product.isFile,
+        paymentMethod: "stripe",
+        phone: formData.get("phone"),
+        address: formData.get("address"),
+        city: formData.get("city"),
+        postalcashe: formData.get("postalcashe"),
+        additionalRequirements: formData.get("additionalRequirements"),
+      };
+
+      localStorage.setItem("pendingOrder", JSON.stringify(orderData));
+
+      try {
+        const sessionRes = await axios.post("/order/create-stripe-session", {
+          product: {
+            title: product.title,
+            price: product.price,
+          },
+          quantity,
+          successUrl: `${window.location.href}&payment=success`,
+          cancelUrl: `${window.location.href}`,
+        });
+
+        await stripe.redirectToCheckout({
+          sessionId: sessionRes.data.id,
+        });
+      } catch (err) {
+        setToast({ status: "error", message: err.message });
+      }
+
+      return;
+    }
+
+    // Handle cash order
     formData.append("title", product.title);
     formData.append("price", product.price);
     formData.append("isFile", product.isFile);
@@ -72,25 +150,16 @@ const Product = () => {
     formData.append("paymentMethod", paymentMethod);
     formData.append("total", product.price * quantity);
 
-    if (paymentMethod === "stripe") {
-    } else {
-      try {
-        const res = await axios.post("/order/place-order", formData);
-        if (res.data.success) {
-          setToast({
-            status: "success",
-            message: "Order placed successfully",
-          });
-          setPlaceOrder(false);
-        } else {
-          setToast({
-            status: "error",
-            message: res.data.message,
-          });
-        }
-      } catch (err) {
-        setToast({ status: "error", message: err.message });
+    try {
+      const res = await axios.post("/order/place-order", formData);
+      if (res.data.success) {
+        setToast({ status: "success", message: "Order placed successfully" });
+        setPlaceOrder(false);
+      } else {
+        setToast({ status: "error", message: res.data.message });
       }
+    } catch (err) {
+      setToast({ status: "error", message: err.message });
     }
   };
 
@@ -324,7 +393,7 @@ const Product = () => {
                   to={
                     authEmail
                       ? "/chat"
-                      : `/sign-in?redirectUrl=${encodeURIComponent(
+                      : `/sign-in?redirectUrl=${encasheURIComponent(
                           window.location.href
                         )}`
                   }
@@ -411,12 +480,12 @@ const Product = () => {
 
                       <div className="mb-4">
                         <label className="block font-medium mb-1">
-                          Postal Code
+                          Postal cashe
                         </label>
                         <input
                           type="text"
-                          name="postalCode"
-                          placeholder="Enter postal code"
+                          name="postalcashe"
+                          placeholder="Enter postal cashe"
                           className="w-full border border-gray-300 px-4 py-2 rounded"
                         />
                       </div>
@@ -489,17 +558,15 @@ const Product = () => {
                         <label className="flex items-center gap-2">
                           <input
                             type="radio"
-                            name="paymentMethod"
-                            value="cod"
-                            checked={paymentMethod === "cod"}
-                            onChange={() => setPaymentMethod("cod")}
+                            value="cash"
+                            checked={paymentMethod === "cash"}
+                            onChange={() => setPaymentMethod("cash")}
                           />
                           Cash on Delivery
                         </label>
                         <label className="flex items-center gap-2">
                           <input
                             type="radio"
-                            name="paymentMethod"
                             value="stripe"
                             checked={paymentMethod === "stripe"}
                             onChange={() => setPaymentMethod("stripe")}

@@ -11,57 +11,39 @@ export const generateToken = (user, res) => {
       restricted: user.restriction || false,
     },
     secret
-    // { expiresIn: "1h" }
   );
   res.cookie("token", token, {
-    httpOnly: false,
+    httpOnly: true,
     secure: true,
-    // maxAge: 36000000,
+    sameSite: "None",
   });
 };
 
 export const verifyToken = (req, res) => {
   try {
-    const cookie = req.header("cookie");
-    if (!cookie) {
-      res.clearCookie("token");
-      return { isValid: false, decoded: null };
-    }
+    const token = req.cookies.token;
 
-    const token = cookie.split("=")[1];
     if (!token) {
-      res.clearCookie("token");
-      location.reload();
+      res.clearCookie("token", { path: "/" });
       return { isValid: false, decoded: null };
     }
-
     const decoded = jwt.verify(token, secret);
     return { isValid: true, decoded };
   } catch (error) {
+    console.error("Token verification failed:", error.message);
+    res.clearCookie("token", { path: "/" });
     return { isValid: false, decoded: null };
   }
 };
 
 export const frontEndTokenVerification = (req, res) => {
+  const token = req.cookies.token;
+  if (!token) return res.status(401).json({ isValid: false });
+
   try {
-    const cookie = req.header("cookie");
-    const token = cookie.split("=")[1];
-
-    if (!token) {
-      location.reload();
-      return res
-        .status(401)
-        .json({ isValid: false, message: "Token not found" });
-    }
-
-    jwt.verify(token, secret);
-
-    return res.status(200).json({ isValid: true, message: "User Authorized" });
-  } catch (error) {
-    res.clearCookie("token");
-    console.error("Token verification failed:", error.message);
-    return res
-      .status(403)
-      .json({ isValid: false, message: "UnAuthorized User" });
+    const decoded = jwt.verify(token, secret);
+    return res.status(200).json({ isValid: true, user: decoded });
+  } catch (err) {
+    return res.status(403).json({ isValid: false });
   }
 };

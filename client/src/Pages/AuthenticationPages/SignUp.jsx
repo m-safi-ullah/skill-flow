@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import signin from "../../images/singIn.png";
 import { Link } from "react-router-dom";
 import axios from "../../baseURL/axios";
 import Toast from "../../Symbols/Toast";
 import "../../css/Auth.css";
-import { useCookies } from "react-cookie";
 
 const SignUp = () => {
   const [toast, setToast] = useState({ status: "", message: "" });
@@ -12,15 +11,14 @@ const SignUp = () => {
   const [formVisibility, setFormVisibility] = useState(true);
   const [email, setEmail] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [cookies] = useCookies(["token"]);
 
   useEffect(() => {
-    if (cookies.token) {
+    const isAuthenticated = localStorage.getItem("authentication") === "true";
+    if (isAuthenticated) {
       window.location.href = "/dashboard";
     }
-  }, [cookies.token]);
+  }, [localStorage.getItem("authentication")]);
 
-  // Password validation function (Updated to match BecomeASeller and ResetPassword)
   const validatePassword = (password, confirmPassword) => {
     if (password !== confirmPassword) {
       return "Password and confirm password must match";
@@ -97,6 +95,7 @@ const SignUp = () => {
 
     axios.post("/auth/verify-otp", formData).then((response) => {
       if (response.data.success) {
+        localStorage.setItem("authentication", "true");
         window.location.href = "/dashboard";
       } else {
         setToast({

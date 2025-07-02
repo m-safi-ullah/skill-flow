@@ -447,3 +447,21 @@ export const updatePassword = async (req, res) => {
     });
   }
 };
+
+export const logout = async (req, res) => {
+  try {
+    const { isValid } = verifyToken(req, res);
+    if (!isValid) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    res.clearCookie("token", { path: "/" });
+    res.status(200).json({ success: true, message: "Logout successful" });
+  } catch (error) {
+    console.error("Error during logout:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred during logout",
+    });
+  }
+};

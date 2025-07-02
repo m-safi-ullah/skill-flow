@@ -9,6 +9,7 @@ import {
   adminRegister,
   setNewPasswod,
   updatePassword,
+  logout,
 } from "../Controllers/auth.js";
 
 import { frontEndTokenVerification } from "../Controllers/generateToken.js";
@@ -36,6 +37,7 @@ const upload = multer({
 });
 
 router.post("/signIn", signIn);
+router.post("/logout", logout);
 router.post("/register", register);
 router.post("/admin-register", upload.single("attachCnic"), adminRegister);
 router.post("/seller-register", upload.single("attachCnic"), sellerRegister);

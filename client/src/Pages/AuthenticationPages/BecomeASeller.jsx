@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import signin from "../../images/singIn.png";
 import { Link } from "react-router-dom";
 import Toast from "../../Symbols/Toast";
 import axios from "../../baseURL/axios";
-import { useCookies } from "react-cookie";
+import { useNavigate } from "react-router-dom";
 
 const BecomeASeller = () => {
   const [toast, setToast] = useState({ status: "", message: "" });
@@ -13,13 +13,13 @@ const BecomeASeller = () => {
   const [cnic, setCnic] = useState("");
   const [email, setEmail] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [cookies] = useCookies(["token"]);
 
   useEffect(() => {
-    if (cookies.token) {
+    const isAuthenticated = localStorage.getItem("authentication") === "true";
+    if (isAuthenticated) {
       window.location.href = "/dashboard";
     }
-  }, [cookies.token]);
+  }, [localStorage.getItem("authentication")]);
 
   const handleChange = (e) => {
     let value = e.target.value;
@@ -120,6 +120,7 @@ const BecomeASeller = () => {
     formData.append("email", email);
     axios.post("/auth/verify-otp", formData).then((response) => {
       if (response.data.success) {
+        localStorage.setItem("authentication", "true");
         window.location.href = "/dashboard";
       } else {
         setToast({
