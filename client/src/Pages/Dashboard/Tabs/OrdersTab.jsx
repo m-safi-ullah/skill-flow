@@ -7,6 +7,7 @@ const OrdersTab = () => {
   const [tab, setTab] = useState("All");
   const [orders, setOrders] = useState([]);
   const [statusChanges, setStatusChanges] = useState({});
+  const [paymentStatusChanges, setPaymentStatusChanges] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const { authRole } = useContext(GlobalContext);
@@ -19,6 +20,7 @@ const OrdersTab = () => {
     : ["All", "cancelled"];
 
   const statusOptions = ["pending", "fulfilled", "returned", "cancelled"];
+  const paymentOptions = ["pending", "paid"];
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -57,7 +59,32 @@ const OrdersTab = () => {
         return updated;
       });
     } catch (err) {
-      console.error("Error updating status:", err);
+      console.error("Error updating delivery status:", err);
+    }
+  };
+
+  const handlePaymentStatusSelect = (orderId, newStatus) => {
+    setPaymentStatusChanges((prev) => ({ ...prev, [orderId]: newStatus }));
+  };
+
+  const handlePaymentStatusUpdate = async (orderId) => {
+    const newStatus = paymentStatusChanges[orderId];
+    try {
+      await axios.patch(`/order/update/${orderId}`, {
+        paymentStatus: newStatus,
+      });
+      setOrders((prev) =>
+        prev.map((order) =>
+          order._id === orderId ? { ...order, paymentStatus: newStatus } : order
+        )
+      );
+      setPaymentStatusChanges((prev) => {
+        const updated = { ...prev };
+        delete updated[orderId];
+        return updated;
+      });
+    } catch (err) {
+      console.error("Error updating payment status:", err);
     }
   };
 
@@ -83,7 +110,6 @@ const OrdersTab = () => {
 
   return (
     <div className="p-5">
-      {/* Tabs */}
       <h3 className="text-xl font-medium mb-4">Orders</h3>
       <div className="flex flex-wrap gap-2 mb-4">
         {tabs.map((t) => (
@@ -101,7 +127,6 @@ const OrdersTab = () => {
         ))}
       </div>
 
-      {/* Table */}
       {loading ? (
         <p className="text-center py-4 text-gray-500">Loading orders...</p>
       ) : (
@@ -123,7 +148,6 @@ const OrdersTab = () => {
             <tbody>
               {filteredOrders.map((order, idx) => {
                 const isCancelled = order.deliveryStatus === "cancelled";
-
                 return (
                   <tr
                     key={order._id}
@@ -154,15 +178,53 @@ const OrdersTab = () => {
                     </td>
                     <td className="px-4 py-3">Rs. {order.price}</td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-medium ${
-                          order.paymentStatus === "paid"
-                            ? "bg-green-100 text-green-600"
-                            : "bg-yellow-100 text-yellow-600"
-                        }`}
-                      >
-                        {order.paymentStatus}
-                      </span>
+                      {isSeller ? (
+                        <div className="flex items-center gap-2">
+                          <select
+                            onClick={(e) => e.stopPropagation()}
+                            className="border px-2 py-1 rounded"
+                            value={
+                              paymentStatusChanges[order._id] ||
+                              order.paymentStatus
+                            }
+                            onChange={(e) =>
+                              handlePaymentStatusSelect(
+                                order._id,
+                                e.target.value
+                              )
+                            }
+                          >
+                            {paymentOptions.map((status) => (
+                              <option key={status} value={status}>
+                                {status}
+                              </option>
+                            ))}
+                          </select>
+                          {paymentStatusChanges[order._id] &&
+                            paymentStatusChanges[order._id] !==
+                              order.paymentStatus && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handlePaymentStatusUpdate(order._id);
+                                }}
+                                className="px-2 py-1 bg-blue-600 text-white text-xs rounded"
+                              >
+                                Update
+                              </button>
+                            )}
+                        </div>
+                      ) : (
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-medium ${
+                            order.paymentStatus === "paid"
+                              ? "bg-green-100 text-green-600"
+                              : "bg-yellow-100 text-yellow-600"
+                          }`}
+                        >
+                          {order.paymentStatus}
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       {isSeller ? (
@@ -236,7 +298,7 @@ const OrdersTab = () => {
         </div>
       )}
 
-      {/* Modal (Optional, unchanged) */}
+      {/* Modal (unchanged) */}
       {selectedOrder && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative">
@@ -258,31 +320,48 @@ const OrdersTab = () => {
                 <strong>Buyer:</strong> {selectedOrder.buyer}
               </p>
               <p>
-                <strong>Buyer Email:</strong> {selectedOrder.buyerEmail}
-              </p>
-              <p>
                 <strong>Seller:</strong> {selectedOrder.seller}
               </p>
-              <p>
-                <strong>Seller Email:</strong> {selectedOrder.sellerEmail}
-              </p>
-              <p>
-                <strong>Phone:</strong> {selectedOrder.phone}
-              </p>
-              <p>
-                <strong>Address:</strong> {selectedOrder.address}
-              </p>
-              <p>
-                <strong>City:</strong> {selectedOrder.city}
-              </p>
-              <p>
-                <strong>Postal Code:</strong> {selectedOrder.postalCode}
-              </p>
+              {selectedOrder.phone && (
+                <p>
+                  <strong>Phone:</strong> {selectedOrder.phone}
+                </p>
+              )}
+              {selectedOrder.address && (
+                <p>
+                  <strong>Address:</strong> {selectedOrder.address}
+                </p>
+              )}
+              {selectedOrder.city && (
+                <p>
+                  <strong>City:</strong> {selectedOrder.city}
+                </p>
+              )}
+              {selectedOrder.postalCode && (
+                <p>
+                  <strong>Postal Code:</strong> {selectedOrder.postalCode}
+                </p>
+              )}
+              {selectedOrder.additionalRequirements && (
+                <p>
+                  <strong>Additional Requirements:</strong>{" "}
+                  {selectedOrder.additionalRequirements}
+                </p>
+              )}
               <p>
                 <strong>Price:</strong> Rs. {selectedOrder.price}
               </p>
               <p>
-                <strong>Payment:</strong> {selectedOrder.paymentStatus}
+                <strong>Payment:</strong>{" "}
+                <span
+                  className={`px-2 py-1 rounded text-xs font-medium ${
+                    selectedOrder.paymentStatus === "paid"
+                      ? "bg-green-100 text-green-600"
+                      : "bg-yellow-100 text-yellow-600"
+                  }`}
+                >
+                  {selectedOrder.paymentStatus}
+                </span>
               </p>
               <p>
                 <strong>Order Status:</strong> {selectedOrder.deliveryStatus}

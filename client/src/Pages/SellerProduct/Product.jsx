@@ -393,9 +393,7 @@ const Product = () => {
                   to={
                     authEmail
                       ? "/chat"
-                      : `/sign-in?redirectUrl=${encasheURIComponent(
-                          window.location.href
-                        )}`
+                      : `/sign-in?redirectUrl=${window.location.href}`
                   }
                 >
                   <button

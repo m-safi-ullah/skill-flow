@@ -89,6 +89,12 @@ const SettingTab = () => {
             status: "success",
             message: "Account deleted successfully.",
           });
+          axios.post("/auth/logout").then((response) => {
+            if (response.success) {
+              window.location.reload();
+              window.location.href = "/sign-in";
+            }
+          });
         } else {
           setToast({ status: "error", message: res.data.message });
         }

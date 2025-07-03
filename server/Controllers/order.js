@@ -190,12 +190,12 @@ export const getOrders = async (req, res) => {
 
 export const updateOrderStatus = async (req, res) => {
   try {
-    const { isValid, decoded } = verifyToken(req, res);
+    const { isValid } = verifyToken(req, res);
     if (!isValid) return;
 
-    const { email } = decoded;
     const { orderId } = req.params;
     const { deliveryStatus } = req.body;
+    const { paymentStatus } = req.body;
 
     const order = await Order.findById(orderId);
     if (!order) {
@@ -204,13 +204,8 @@ export const updateOrderStatus = async (req, res) => {
         .json({ success: false, message: "Order not found." });
     }
 
-    // if (order.seller !== email) {
-    //   return res
-    //     .status(403)
-    //     .json({ success: false, message: "Unauthorized action." });
-    // }
-
-    order.deliveryStatus = deliveryStatus;
+    if (deliveryStatus) order.deliveryStatus = deliveryStatus;
+    if (paymentStatus) order.paymentStatus = paymentStatus;
     await order.save();
 
     return res.status(200).json({
