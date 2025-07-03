@@ -1,5 +1,5 @@
 import UserListTab from "./Tabs/UserListTab";
-import RestrictedUserListTab from "./Tabs/restrictedUserListTab";
+import RestrictedUserListTab from "./Tabs/restrictedUserListTab.jsx";
 import CreateAdminTab from "./Tabs/CreateAdminTab";
 import "../../css/Dashboard.css";
 
