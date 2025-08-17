@@ -1,5 +1,5 @@
 import AuthModel from "../models/authDB.js";
-import ProfileModel from "../models/Portfolios.js";
+import ProfileModel from "../models/Profile.js";
 import Products from "../models/Product.js";
 import { verifyToken } from "../Controllers/generateToken.js";
 import Portfolios from "../models/Portfolios.js";

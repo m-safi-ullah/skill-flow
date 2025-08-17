@@ -17,5 +17,5 @@ const profileSchema = new mongoose.Schema({
   },
 });
 
-const ProfileModel = mongoose.model("profile", profileSchema);
+const ProfileModel = mongoose.model("profiles", profileSchema);
 export default ProfileModel;
