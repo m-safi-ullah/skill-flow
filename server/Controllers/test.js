@@ -1,5 +1,5 @@
 import { verifyToken } from "./generateToken.js";
-import ProfileModel from "../models/Profile.js";
+import ProfileModel from "../models/profile.js";
 export const test = async (req, res) => {
   try {
     const { isValid, decoded } = verifyToken(req, res);

@@ -1,4 +1,4 @@
-import Profile from "../models/Profile.js";
+import Profile from "../models/profile.js";
 import { verifyToken } from "../Controllers/generateToken.js";
 import Stripe from "stripe";
 import Order from "../models/Order.js";
