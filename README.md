@@ -11,11 +11,11 @@ The primary objective of Skill Flow is to provide a seamless, secure, and effici
 - Handle payments securely.
      
 - ## Tech Stack
-Skill Flow is built using the **MERN** stack along with several modern integrations:
+     Skill Flow is built using the **MERN** stack along with several modern integrations:
     
 - ### Frontend
-- **React (Vite)**: For a fast and responsive user interface.
-- **Tailwind CSS**: For modern and scalable styling.
+-- **React (Vite)**: For a fast and responsive user interface.
+-- **Tailwind CSS**: For modern and scalable styling.
 - **CometChat & Stream Chat**: Integrated for real-time messaging and collaboration.
 - **Stripe**: For secure payment processing.
 - **Google Generative AI**: Leveraging AI for enhanced platform features.
