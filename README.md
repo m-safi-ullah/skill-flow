@@ -1,5 +1,7 @@
 # Skill Flow - Final Year Project (FYP)
 
+![Skill Flow Banner](https://github.com/m-safi-ullah/skill-flow/blob/master/client/public/logoDark.png)
+
 ## Introduction
 Skill Flow is a professional freelance marketplace and skill-sharing platform designed to bridge the gap between talented freelancers and clients looking for high-quality services. This project was developed as a Final Year Project (FYP) for PMAS-AAUR in 2025.
 
