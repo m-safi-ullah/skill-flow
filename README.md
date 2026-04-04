@@ -10,25 +10,25 @@ The primary objective of Skill Flow is to provide a seamless, secure, and effici
 - Collaborate on projects using integrated communication tools.
 - Handle payments securely.
      
-- ## Tech Stack
-     Skill Flow is built using the **MERN** stack along with several modern integrations:
+## Tech Stack
+   Skill Flow is built using the **MERN** stack along with several modern integrations:
     
-- ### Frontend
--- **React (Vite)**: For a fast and responsive user interface.
--- **Tailwind CSS**: For modern and scalable styling.
+### Frontend
+- **React (Vite)**: For a fast and responsive user interface.
+- **Tailwind CSS**: For modern and scalable styling.
 - **CometChat & Stream Chat**: Integrated for real-time messaging and collaboration.
 - **Stripe**: For secure payment processing.
 - **Google Generative AI**: Leveraging AI for enhanced platform features.
 - **Lucide React**: For beautiful iconography.
                  
-- ### Backend
+### Backend
 - **Node.js & Express**: A robust server-side architecture.
 - **MongoDB & Mongoose**: A flexible document-based database.
 - **JWT & Bcrypt**: For secure authentication and data protection.
 - **Nodemailer**: For automated email communications.
 - **Multer**: For handling file uploads.
                            
-- ## Future Scope
+## Future Scope
 - **AI-Driven Job Matching**: Implementing smarter algorithms to recommend the best freelancers for specific tasks.
 - **Advanced Analytics**: Providing users with detailed insights into their performance and earnings.
 - **Mobile Application**: Developing dedicated iOS and Android apps for on-the-go access.
